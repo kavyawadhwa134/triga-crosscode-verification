@@ -37,14 +37,14 @@ void UDF_Setup()
 
   const dfloat wallAreaRelativeError =
       fabs(wallArea - expectedWallArea) / expectedWallArea;
-  nrsCheck(wallAreaRelativeError > wallAreaTolerance,
-           platform->comm.mpiComm,
-           EXIT_FAILURE,
-           "PCM wall area mismatch: measured %.12e expected %.12e "
-           "(relative error %.6e). Regenerate fluid.re2 and verify sidesets.\n",
-           wallArea,
-           expectedWallArea,
-           wallAreaRelativeError);
+  nekrsCheck(wallAreaRelativeError > wallAreaTolerance,
+             platform->comm.mpiComm(),
+             EXIT_FAILURE,
+             "PCM wall area mismatch: measured %.12e expected %.12e "
+             "(relative error %.6e). Regenerate fluid.re2 and verify sidesets.\n",
+             wallArea,
+             expectedWallArea,
+             wallAreaRelativeError);
 
   o_temperatureVelocity.resize(mesh->dim * nrs->fluid->fieldOffset);
 
