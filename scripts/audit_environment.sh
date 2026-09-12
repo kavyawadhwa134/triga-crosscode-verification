@@ -77,8 +77,19 @@ if [ -n "${OPENMC_CROSS_SECTIONS:-}" ] && [ -f "${OPENMC_CROSS_SECTIONS}" ]; the
     echo "          result with the library actually used. See docs/RUNBOOK.md."
   fi
   for t in c_H_in_ZrH c_Zr_in_ZrH; do
-    d="$(dirname "${OPENMC_CROSS_SECTIONS}")/thermal/${t}.h5"
-    [ -f "$d" ] && ok "S(a,b) ${t}" || miss "S(a,b) ${t} - required for TRIGA ZrH feedback"
+    # Official OpenMC libraries have used both layouts. ENDF/B-VII.1 places
+    # these thermal-scattering tables under neutron/, while other releases
+    # may use thermal/.
+    d=""
+    for candidate in \
+      "$(dirname "${OPENMC_CROSS_SECTIONS}")/neutron/${t}.h5" \
+      "$(dirname "${OPENMC_CROSS_SECTIONS}")/thermal/${t}.h5"; do
+      if [ -f "$candidate" ]; then
+        d="$candidate"
+        break
+      fi
+    done
+    [ -n "$d" ] && ok "S(a,b) ${t} = ${d}" || miss "S(a,b) ${t} - required for TRIGA ZrH feedback"
   done
 else
   miss "No cross_sections.xml found. Set PCM_CROSS_SECTIONS=/path/to/cross_sections.xml"
