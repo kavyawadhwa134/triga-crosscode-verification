@@ -1,0 +1,8 @@
+model,quantity,value,std_dev,std_dev_pcm,config,particles,inactive_batches,active_batches,total_batches,histories,seed,sab,temperature_K,threads,wall_clock_s,openmc_python,nuclear_data,xs_sha256_16,platform,timestamp
+unitcell,k_inf,1.383854,0.000602,60.2,baseline,10000,50,200,250,2500000,1,per-material,293.0,8,59.9,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:14:07
+unitcell,k_inf,1.385280,0.000593,59.3,baseline,10000,50,200,250,2500000,2,per-material,293.0,8,62.4,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:15:11
+unitcell,k_inf,1.384114,0.000619,61.9,baseline,10000,50,200,250,2500000,3,per-material,293.0,8,54.4,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:16:06
+unitcell,k_inf,1.383340,0.000605,60.5,baseline,10000,50,200,250,2500000,4,per-material,293.0,8,55.3,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:17:03
+unitcell,k_inf,1.383910,0.000536,53.6,baseline,10000,50,200,250,2500000,5,per-material,293.0,8,60.9,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:18:05
+unitcell,k_inf,1.378230,0.004981,498.1,smoke,1000,10,30,40,40000,11,per-material,293.0,8,4.9,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:18:22
+unitcell,k_inf,1.384207,0.000214,21.4,production,40000,100,400,500,20000000,11,per-material,293.0,8,456.0,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:26:00

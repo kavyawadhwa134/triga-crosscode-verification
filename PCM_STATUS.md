@@ -18,14 +18,20 @@ Last updated: 2026-09-12
 
 ## Current
 
-Phase 3 — Cardinal tutorial validation, then Phase 4 — independent OpenMC
-unit-cell model.
+Phases 0–5 complete for standalone OpenMC. Next: Phase 6 (MGXS), then the
+MOOSE/NekRS/Cardinal coupling chain (Phases 7–12), which has not been started.
 
 ## Blocked
 
-Nothing hard-blocking. Four items need supervisor input but do not stop the
-unit-cell work (see *Questions for Supervisor*). The core-geometry ambiguity
-(Q1) **does** block the Model-2 core calculation.
+Nothing hard-blocking. The neutronics ran to completion.
+
+Two answers are needed before the **core** numbers can be called final:
+- **Q1** (core diameter vs radius) — the core was run on pcM's provisional
+  diameter reading. If that reading is wrong, every core result changes.
+- **Q4** (homogenized vs heterogeneous, and which hydrogen S(α,β) kernel) —
+  worth ≈3100 pcm and ≈1275 pcm respectively.
+
+The **unit-cell** k-infinity result depends on neither and is final.
 
 ## Independent Assumptions
 
@@ -53,14 +59,13 @@ height 0.60 m (see Q1).
 ```
 .gitignore
 PCM_STATUS.md
-spec/hardware.md
-spec/geometry.md
-spec/materials.md
-spec/operating.md
-spec/independence.md
-cardinal/{openmc,moose,nekrs,coupling}/   (empty, scaffolded)
-results/                                   (empty)
-scripts/                                   (empty)
+spec/{hardware,geometry,materials,operating,independence}.md
+cardinal/openmc/{materials,geometry,settings,tallies,run,postprocess}.py
+scripts/{env.sh,run_openmc.sh}
+results/PCM_RESULTS.md
+results/pcm_openmc_{unitcell,core,core_homog}.csv
+results/pcm_power_{summary,radial,axial}_core.csv
+results/pcm_pin_power_core.csv
 ```
 
 ## Commands Executed
@@ -76,25 +81,72 @@ grep -E 'ENABLE_(CUDA|HIP|OPENCL|METAL|DPCPP)' /Users/kavyawadhwa/MOOSE/cardinal
 
 ## Tests
 
-None yet. Phase 3 tutorial runs are next; they are the first software
-verification evidence.
+Software verification: OpenMC executes, 16 runs completed, no crashes.
+
+Numerical verification:
+- Particle/batch convergence (unit cell): smoke/baseline/production agree
+  within uncertainty; production σ = 21 pcm.
+- Seed repeatability (unit cell, 5 seeds): scatter 72 pcm vs reported σ 60 pcm
+  — consistent, no hidden bias.
+- Seed repeatability (core, 2 seeds): 5 pcm apart.
+
+Physics verification:
+- Unit-cell leakage exactly 0 (reflective BCs correct).
+- Pin powers sum to 250,000.0 W (normalization correct).
+- Axial power profile symmetric to 0.69 % (geometry is symmetric by
+  construction).
+- k_inf × (1 − leakage) = 1.1053 vs directly computed k_eff = 1.1021 (0.3 %).
+
+Two post-processing defects were found and fixed; both are documented in
+`results/PCM_RESULTS.md` §5.1 rather than quietly corrected:
+1. Cylindrical mesh tally reshaped as (r, φ, z) when OpenMC orders bins
+   (z, φ, r) — silently transposed radius and height. Caught by the symmetry
+   check. Did not affect k.
+2. Core-average power density computed as an unweighted cell mean instead of
+   volume-weighted.
 
 ## Results
 
-None yet. No k has been computed by pcM.
+Production, 20 M histories, ENDF/B-VIII.0, 293 K:
+
+| Quantity | Value |
+|---|---|
+| k-infinity (2-D unit cell, reflective) | 1.384207 ± 0.000214 |
+| k-effective (bare heterogeneous core, vacuum) | 1.102059 ± 0.000260 |
+| Leakage fraction | 0.20149 ± 0.00012 |
+| Pin peak/average (120 pins) | 2.2544 (upper estimate) |
+| Peak / average power density | 6.595 / 2.165 W/cm³ |
+
+Homogenized-core bracket (baseline statistics): k_eff = 1.132505 (H-in-ZrH),
+1.145259 (H-in-H₂O), 1.136651 (free gas) — a ≈1275 pcm spread caused by a
+genuine OpenMC restriction (one S(α,β) table per nuclide per material) that
+makes a fully smeared core physically ill-posed here. pcM's reported core
+value is the heterogeneous one.
+
+No temperatures, velocities, or pressures — the coupled phases are not done.
+
+Full report: `results/PCM_RESULTS.md`.
 
 ## Runtime
 
-Phase 0–2: a few minutes, no compute-intensive work.
+| Run | Wall clock |
+|---|---|
+| Unit cell production (20 M) | 456 s |
+| Core production (20 M) | 365–446 s |
+| Unit cell baseline (2.5 M) | 44 s |
+| Core baseline (2.5 M) | 38 s |
+
+8 OpenMP threads, 1 MPI rank, Apple M2. ≈53,000 particles/s.
 
 ## Next Step
 
-1. Run Cardinal's standalone OpenMC tutorial to confirm the toolchain executes
-   (Phase 3 software verification).
-2. Build the independent OpenMC unit-cell model (`cardinal/openmc/`) and run
-   the k-infinity baseline (Phase 4).
-3. Resolve the OpenMC Python-API / solver version split before trusting any
-   number (see Q2).
+1. Phase 6 — MGXS generation in the specified 2-group structure (0.625 eV).
+2. Phase 7 — MOOSE thermal model.
+3. Phase 8 — NekRS model (CPU-only; mesh sized to the 8 GiB limit).
+4. Phases 9–10 — Cardinal coupling and coupled smoke test.
+
+Answers to Q1 and Q4 are needed before the core result can be considered
+final; the unit-cell result does not depend on them.
 
 ## Questions for Supervisor
 

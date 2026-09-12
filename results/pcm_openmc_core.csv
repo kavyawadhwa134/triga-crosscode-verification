@@ -1,0 +1,4 @@
+model,quantity,value,std_dev,std_dev_pcm,config,particles,inactive_batches,active_batches,total_batches,histories,seed,sab,temperature_K,threads,wall_clock_s,openmc_python,nuclear_data,xs_sha256_16,platform,timestamp
+core,k_eff,1.101197,0.000682,68.2,baseline,10000,50,200,250,2500000,1,per-material,293.0,8,37.9,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:10:07
+core,k_eff,1.102008,0.000253,25.3,production,40000,100,400,500,20000000,11,per-material,293.0,8,365.4,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:32:14
+core,k_eff,1.102059,0.000260,26.0,production,40000,100,400,500,20000000,21,per-material,293.0,8,446.2,0.15.1.dev0,ENDF/B-VIII.0,ba7f6d5a371b5a8d,Darwin 25.6.0 arm64,2026-09-12T15:41:13

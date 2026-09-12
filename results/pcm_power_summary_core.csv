@@ -1,0 +1,2 @@
+label,statepoint,k_eff,k_eff_std,total_power_W,mesh_nr,mesh_nz,peak_power_density_W_cm3,avg_power_density_W_cm3,mesh_peak_to_average,max_rel_unc_in_peak_cell,axial_symmetry_residual,n_fuelled_pins,pin_peak_power_W,pin_avg_power_W,pin_peak_to_average,pin_min_to_average,pin_power_sum_W,hottest_pin_rel_unc
+core,statepoint.500.h5,1.102059,0.000260,250000.0,10,20,6.5950,2.1652,3.0460,0.0182,0.0069,120,4696.62,2083.33,2.2544,0.0361,250000.0,0.00262
