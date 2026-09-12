@@ -15,9 +15,8 @@
   backend = CPU
 
 [GENERAL]
-  # polynomialOrder 7 matches Cardinal's tutorials/turbulence/les case, which
-  # targets Re = 5000 - close to this case's Re = 4755 - so the LES is
-  # resolved rather than merely demonstrative.
+  # Order 7 is the starting resolution. Mesh/order refinement and flow
+  # statistics must establish adequacy for this particular subchannel.
   #
   # Nek5000 allocates statically: ~854 arrays of (lx1^3 * lelt) doubles, where
   # lx1 = polynomialOrder + 1 and lelt = elements per rank. At 2880 elements
@@ -48,10 +47,12 @@
   rho = 1.0
   # The legacy negative-Re shorthand is written explicitly in NekRS 26.
   viscosity = 1/4755
-  # This CARDINAL-pinned NekRS build accepts the established Nek5000 aliases
-  # for slip/symmetry planes (symx and symy), rather than the newer expanded
-  # spelling shown by generic NekRS documentation.
-  boundaryTypeMap = zeroDirichlet, udfDirichlet, zeroNeumann, symx, symx, symy, symy
+  # The committed re2 mesh reports non-axis-aligned normals on IDs 4-7.
+  # 'sym' imposes zero normal velocity and homogeneous tangential Neumann
+  # conditions using the actual face normals. All four must use this form:
+  # NekRS 6621767f disallows mixing aligned and unaligned symmetry types.
+  # Verify lateral boundary placement before interpreting production results.
+  boundaryTypeMap = zeroDirichlet, udfDirichlet, zeroNeumann, sym, sym, sym, sym
   residualTol = 1.0e-07
 
 [SCALAR TEMPERATURE]
