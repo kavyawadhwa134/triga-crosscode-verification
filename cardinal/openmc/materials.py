@@ -50,9 +50,15 @@ def water(temperature=REF_TEMPERATURE):
     return m
 
 
-def unit_cell_materials(temperature=REF_TEMPERATURE):
-    """Return (fuel, clad, water, Materials collection)."""
-    f, c, w = fuel(temperature), clad(temperature), water(temperature)
+def unit_cell_materials(temperature=REF_TEMPERATURE, fuel_temperature=None):
+    """Return (fuel, clad, water, Materials collection).
+
+    `fuel_temperature` overrides the fuel temperature alone, which isolates the
+    fuel temperature coefficient of reactivity - the defining TRIGA feedback,
+    driven by hydrogen bound in ZrH rather than by U-238 Doppler alone.
+    """
+    f = fuel(temperature if fuel_temperature is None else fuel_temperature)
+    c, w = clad(temperature), water(temperature)
     return f, c, w, openmc.Materials([f, c, w])
 
 

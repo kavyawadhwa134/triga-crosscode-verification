@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+# pcM standalone NekRS run.
+#
+#   ./scripts/run_nekrs.sh [ranks]
+#
+# Defaults to all physical cores. NEVER run this on a single rank: Nek5000
+# allocates statically with lelt = elements-per-rank, so one rank puts the
+# whole mesh into one translation unit and the JIT Fortran compile can exhaust
+# RAM (this killed an 8 GiB machine at 2880 elements / 4.25 GB). See
+# docs/PORTING.md for the arithmetic.
+set -euo pipefail
+
+source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
+
+RANKS="${1:-${PCM_CORES}}"
+CASE="${PCM_NEK_CASE:-fluid}"
+cd "${PCM_ROOT}/cardinal/nekrs"
+
+if [ "${RANKS}" -lt 2 ]; then
+  echo "ERROR: refusing to run on ${RANKS} rank(s)." >&2
+  echo "       Single-rank NekRS sets lelt = total elements and the Nek5000" >&2
+  echo "       JIT build can exhaust memory. Use 2 or more." >&2
+  exit 1
+fi
+
+if [ ! -f "${CASE}.re2" ]; then
+  echo "ERROR: ${CASE}.re2 missing. Regenerate it with:" >&2
+  echo "       cardinal-opt -i fluid.i --mesh-only" >&2
+  echo "       cardinal-opt -i convert.i --mesh-only && mv convert_in.e convert.exo" >&2
+  echo "       printf '1\\nconvert\\n0\\n0\\n${CASE}\\n' | exo2nek" >&2
+  exit 1
+fi
+
+echo "case=${CASE} ranks=${RANKS} backend=${PCM_NEKRS_BACKEND} mem=${PCM_MEM_GB}GiB"
+
+# A stale cache built for a different rank count carries the old lelt.
+rm -rf .cache
+
+exec mpirun -np "${RANKS}" "${NEKRS_HOME}/bin/nekrs" \
+  --setup "${CASE}.par" --backend "${PCM_NEKRS_BACKEND}"

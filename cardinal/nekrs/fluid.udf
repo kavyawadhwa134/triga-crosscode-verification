@@ -1,0 +1,27 @@
+#include "udf.hpp"
+
+// Domain height / hydraulic diameter = 0.60 / 0.023869
+#define PCM_LENGTH 25.1372
+
+void UDF_LoadKernels(occa::properties & kernelInfo)
+{
+}
+
+void UDF_Setup(nrs_t *nrs)
+{
+  auto mesh = nrs->cds->mesh[0];
+  int n_gll_points = mesh->Np * mesh->Nelements;
+
+  for (int n = 0; n < n_gll_points; ++n)
+  {
+    nrs->U[n + 0 * nrs->fieldOffset] = 0.0;
+    nrs->U[n + 1 * nrs->fieldOffset] = 0.0;
+    nrs->U[n + 2 * nrs->fieldOffset] = 1.0;   // start as plug flow
+
+    nrs->P[n] = 0.0;
+
+    // Linear axial temperature guess: T* goes 0 -> 1 over the channel,
+    // which is the bulk rise the energy balance predicts.
+    nrs->cds->S[n + 0 * nrs->cds->fieldOffset[0]] = mesh->z[n] / PCM_LENGTH;
+  }
+}

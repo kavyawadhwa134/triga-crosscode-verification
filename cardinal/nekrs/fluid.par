@@ -1,0 +1,44 @@
+# pcM NekRS: TRIGA coolant subchannel, non-dimensional form.
+#
+# Reference scales (spec/operating.md + spec/thermal.md):
+#   L = D_h = 0.023869 m      U = 0.2 m/s      T_ref = 293 K      dT = 3.567 K
+#   Re = 4755    Pr = 7.01    Pe = 33318
+#
+# Re = 4755 is transitional/turbulent, so this is run as an implicit LES with
+# HPFRT filtering, following Cardinal's tutorials/turbulence/les case which
+# targets Re = 5000. A laminar solve would be physically wrong at this Re.
+# CPU-only NekRS on 8 cores (spec/hardware.md) sets the resolution ceiling.
+#
+# Sideset map: 1 = clad surface, 2 = inlet, 3 = outlet, 4-7 = lateral faces.
+
+[OCCA]
+  backend = CPU
+
+[GENERAL]
+  polynomialOrder = 5
+  stopAt = numSteps
+  numSteps = 2000
+  dt = targetCFL=0.5 + initial=1e-3
+  timeStepper = tombo2
+  writeControl = steps
+  writeInterval = 500
+
+  # Implicit LES: high-pass filter relaxation term
+  filtering = hpfrt
+  filterWeight = 5.0
+  filterModes = 2
+
+[PRESSURE]
+  residualTol = 1.0e-06
+
+[VELOCITY]
+  density = 1.0
+  viscosity = -4755.0
+  boundaryTypeMap = W, v, O, symx, symx, symy, symy
+  residualTol = 1.0e-07
+
+[TEMPERATURE]
+  rhoCp = 1.0
+  conductivity = -33318.0
+  boundaryTypeMap = f, t, I, I, I, I, I
+  residualTol = 1.0e-07
