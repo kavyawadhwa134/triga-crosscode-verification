@@ -56,6 +56,9 @@
   residualTol = 1.0e-07
 
 [SCALAR TEMPERATURE]
+  # Stronger scalar-only filtering reduces the heated-wall temperature
+  # undershoot without materially changing bulk outlet temperature or flow.
+  regularization = hpfrt + nModes=3 + scalingCoeff=10
   transportCoeff = 1.0
   # The legacy negative-Pe shorthand is written explicitly in NekRS 26.
   diffusionCoeff = 1/33318
