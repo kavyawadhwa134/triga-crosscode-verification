@@ -24,10 +24,16 @@ MPIEXEC="${PCM_MPIEXEC:-/usr/bin/mpirun}"
 SYSTEM_MPICH_LIB="/usr/lib/x86_64-linux-gnu/mpich/lib"
 cd "${PCM_ROOT}/cardinal/nekrs"
 
-if [ "${RANKS}" -lt 2 ]; then
-  echo "ERROR: refusing to run on ${RANKS} rank(s)." >&2
-  echo "       Single-rank NekRS sets lelt = total elements and the Nek5000" >&2
-  echo "       JIT build can exhaust memory. Use 2 or more." >&2
+if [ "${RANKS}" -lt 1 ]; then
+  echo "ERROR: rank count must be positive." >&2
+  exit 1
+fi
+
+if [ "${RANKS}" -eq 1 ] && [ "${PCM_ALLOW_SERIAL_NEKRS:-no}" != "yes" ]; then
+  echo "ERROR: refusing a single-rank NekRS run by default." >&2
+  echo "       It sets lelt = total elements and can exhaust memory during JIT." >&2
+  echo "       On a verified high-memory machine, set PCM_ALLOW_SERIAL_NEKRS=yes" >&2
+  echo "       to make an intentional serial fallback run." >&2
   exit 1
 fi
 
@@ -46,7 +52,6 @@ if [ ! -x "${MPIEXEC}" ]; then
 fi
 
 echo "case=${CASE} ranks=${RANKS} backend=${PCM_NEKRS_BACKEND} mem=${PCM_MEM_GB}GiB"
-echo "mpi launcher=${MPIEXEC}"
 
 if [ -d "${SYSTEM_MPICH_LIB}" ]; then
   export LD_LIBRARY_PATH="${SYSTEM_MPICH_LIB}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
@@ -55,5 +60,12 @@ fi
 # A stale cache built for a different rank count carries the old lelt.
 rm -rf .cache
 
+if [ "${RANKS}" -eq 1 ]; then
+  echo "WARNING: intentional serial fallback; no MPI acceleration is available."
+  exec "${NEKRS_HOME}/bin/nekrs" \
+    --setup "${CASE}.par" --backend "${PCM_NEKRS_BACKEND}"
+fi
+
+echo "mpi launcher=${MPIEXEC}"
 exec "${MPIEXEC}" -np "${RANKS}" "${NEKRS_HOME}/bin/nekrs" \
   --setup "${CASE}.par" --backend "${PCM_NEKRS_BACKEND}"
