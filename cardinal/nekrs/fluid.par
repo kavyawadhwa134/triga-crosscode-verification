@@ -31,25 +31,29 @@
   numSteps = 2000
   dt = targetCFL=0.5 + initial=1e-3
   timeStepper = tombo2
-  writeControl = steps
-  writeInterval = 500
+  checkpointControl = steps
+  checkpointInterval = 500
 
-  # Implicit LES: high-pass filter relaxation term
-  filtering = hpfrt
-  filterWeight = 5.0
-  filterModes = 2
+  # NekRS 26 requires each transported scalar to be named explicitly.
+  scalars = temperature
 
-[PRESSURE]
+  # Implicit LES: high-pass filter relaxation term. This is the NekRS 26
+  # spelling of the former filtering/filterWeight/filterModes triplet.
+  regularization = hpfrt + nModes=2 + scalingCoeff=5.0
+
+[FLUID PRESSURE]
   residualTol = 1.0e-06
 
-[VELOCITY]
-  density = 1.0
-  viscosity = -4755.0
-  boundaryTypeMap = W, v, O, symx, symx, symy, symy
+[FLUID VELOCITY]
+  rho = 1.0
+  # The legacy negative-Re shorthand is written explicitly in NekRS 26.
+  viscosity = 1/4755
+  boundaryTypeMap = zeroDirichlet, udfDirichlet, zeroNeumann, zeroDirichletX/zeroNeumann, zeroDirichletX/zeroNeumann, zeroDirichletY/zeroNeumann, zeroDirichletY/zeroNeumann
   residualTol = 1.0e-07
 
-[TEMPERATURE]
-  rhoCp = 1.0
-  conductivity = -33318.0
-  boundaryTypeMap = f, t, I, I, I, I, I
+[SCALAR TEMPERATURE]
+  transportCoeff = 1.0
+  # The legacy negative-Pe shorthand is written explicitly in NekRS 26.
+  diffusionCoeff = 1/33318
+  boundaryTypeMap = udfNeumann, udfDirichlet, zeroNeumann, zeroNeumann, zeroNeumann, zeroNeumann, zeroNeumann
   residualTol = 1.0e-07

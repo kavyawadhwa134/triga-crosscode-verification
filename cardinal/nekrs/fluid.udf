@@ -1,27 +1,41 @@
 #include "udf.hpp"
 
-// Domain height / hydraulic diameter = 0.60 / 0.023869
-#define PCM_LENGTH 25.1372
+// NekRS 26 compiles host and device UDF code from this one source file.
+// PCM_STANDALONE_FLUX is the uniform non-dimensional clad heat flux used by
+// the standalone fluid model. Coupled runs replace it with MOOSE/OpenMC data.
+#define PCM_STANDALONE_FLUX 0.009946
 
-void UDF_LoadKernels(occa::properties & kernelInfo)
+#ifdef __okl__
+
+void udfDirichlet(bcData *bc)
 {
+  if (isField("fluid velocity")) {
+    // Side 2: uniform axial inlet velocity, U* = 1.
+    bc->uxFluid = 0.0;
+    bc->uyFluid = 0.0;
+    bc->uzFluid = 1.0;
+  } else if (isField("scalar temperature")) {
+    // Side 2: inlet temperature, T* = 0 (293 K).
+    bc->sScalar = 0.0;
+  }
 }
 
-void UDF_Setup(nrs_t *nrs)
+void udfNeumann(bcData *bc)
 {
-  auto mesh = nrs->cds->mesh[0];
-  int n_gll_points = mesh->Np * mesh->Nelements;
-
-  for (int n = 0; n < n_gll_points; ++n)
-  {
-    nrs->U[n + 0 * nrs->fieldOffset] = 0.0;
-    nrs->U[n + 1 * nrs->fieldOffset] = 0.0;
-    nrs->U[n + 2 * nrs->fieldOffset] = 1.0;   // start as plug flow
-
-    nrs->P[n] = 0.0;
-
-    // Linear axial temperature guess: T* goes 0 -> 1 over the channel,
-    // which is the bulk rise the energy balance predicts.
-    nrs->cds->S[n + 0 * nrs->cds->fieldOffset[0]] = mesh->z[n] / PCM_LENGTH;
+  if (isField("scalar temperature")) {
+#ifdef PCM_COUPLED
+    bc->flux = bc->usrwrk[bc->idM];
+#else
+    bc->flux = PCM_STANDALONE_FLUX;
+#endif
   }
+}
+
+#endif
+
+void UDF_Setup()
+{
+  // The NekRS 26 solver initializes fields. The inlet and wall conditions
+  // above establish the intended flow and thermal state without legacy host
+  // mirrors, which this version no longer provides.
 }
