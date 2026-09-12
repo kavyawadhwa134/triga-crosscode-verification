@@ -1,0 +1,6 @@
+case,quantity,simulated,expected,rel_error,tolerance,status
+3D_SmallESFR,keff,0.936873,0.936827,4.9e-05,0.001,PASS
+2D_onePhaseAndPointKineticsCoupling,steadyState_log_End,1,1,0,-,PASS
+2D_onePhaseAndPointKineticsCoupling,transientNoDriveline_log_End,1,1,0,-,PASS
+2D_onePhaseAndPointKineticsCoupling,transientWithDriveline_log_End,1,1,0,-,PASS
+2D_onePhaseAndPointKineticsCoupling,transientWithBoron_log_End,1,1,0,-,PASS

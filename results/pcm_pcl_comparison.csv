@@ -1,0 +1,13 @@
+case,quantity,pcm_value,pcm_sigma,pcl_value,pcl_sigma,difference,unit,comparable,note
+1,k_inf_unitcell,1.384207,0.000214,1.388100,0.001230,-280,pcm,yes,Monte Carlo both sides; within 500 pcm threshold
+2,k_eff_core_heterogeneous,1.102059,0.000260,1.240544,,+12566,pcm,no,pcM MC heterogeneous vs pcL 2-group diffusion homogenised
+3,k_eff_core_homogenised,1.145259,0.000677,1.240544,,+8320,pcm,partial,geometry matched; pure method difference
+4,k_inf_diffusion_vs_MC,,,1.331 vs 1.388100,,-4114,pcm,pcL-internal,"pcL's own method benchmark, same pin cell"
+5,fuel_temp_coefficient_500_600K,-7.76,,-10.000,,-29,%,partial,"pcM computed from S(a,b); pcL constant, origin undocumented"
+6,power_peaking,2.2544,,2.45,,-8.0,%,no,120 discrete pins vs single homogenised zone
+7,max_fuel_temperature_K,359.0,,594.2,,-235.2,K,no,"pcM average pin, correlation film coeff; pcL sub-scale pin"
+8,max_coolant_temperature_K,294.2,,306.5,,,K,no,pcM CFD unconverged (34.6% energy closure)
+9,total_power_W,250000,,250000,,0,W,yes,identical by specification
+10,transient_peak_power_W,,,489723,,,W,no,not run by pcM; out of scope
+11,mgxs_2group,not_generated,,full_set,,,,no,pcM Phase 6 not run; pcL condensed independently
+12,solver_acceptance,not_recorded,,PASS_4.9e-5,,,,no,pcL SmallESFR vs reference
