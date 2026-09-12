@@ -69,12 +69,19 @@ echo
 echo "--- Nuclear data ---"
 if [ -n "${OPENMC_CROSS_SECTIONS:-}" ] && [ -f "${OPENMC_CROSS_SECTIONS}" ]; then
   ok "cross_sections.xml = ${OPENMC_CROSS_SECTIONS}"
+  if [ "${PCM_XS_LIBRARY}" = "ENDF/B-VIII.0" ]; then
+    ok "library = ${PCM_XS_LIBRARY} (matches spec)"
+  else
+    warn "library = ${PCM_XS_LIBRARY} - spec/materials.md requires ENDF/B-VIII.0"
+    echo "          Committed baselines and pcL both used VIII.0. Label every"
+    echo "          result with the library actually used. See docs/RUNBOOK.md."
+  fi
   for t in c_H_in_ZrH c_Zr_in_ZrH; do
     d="$(dirname "${OPENMC_CROSS_SECTIONS}")/thermal/${t}.h5"
     [ -f "$d" ] && ok "S(a,b) ${t}" || miss "S(a,b) ${t} - required for TRIGA ZrH feedback"
   done
 else
-  miss "ENDF/B-VIII.0 not found. Set PCM_CROSS_SECTIONS=/path/to/cross_sections.xml"
+  miss "No cross_sections.xml found. Set PCM_CROSS_SECTIONS=/path/to/cross_sections.xml"
 fi
 
 echo
@@ -107,7 +114,7 @@ echo "--- NekRS sizing guidance (memory) ---"
 # lelt = elements per RANK. Running on 1 rank puts the whole mesh in one
 # translation unit and the JIT compile can exhaust RAM. See docs/PORTING.md.
 ELEMS="${PCM_NEK_ELEMENTS:-2880}"
-POLY="${PCM_NEK_POLY:-5}"
+POLY="${PCM_NEK_POLY:-7}"
 "${PCM_PYTHON}" - "$ELEMS" "$POLY" "$PCM_CORES" "$PCM_MEM_GB" <<'PY'
 import sys
 elems, poly, cores, mem = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])

@@ -93,15 +93,31 @@ export PCM_PYTHON
 if [ -n "${PCM_CROSS_SECTIONS:-}" ]; then
   export OPENMC_CROSS_SECTIONS="${PCM_CROSS_SECTIONS}"
 elif [ -z "${OPENMC_CROSS_SECTIONS:-}" ]; then
+  # VIII.0 is the spec library and is searched first. VII.1 is what the
+  # Binder/Cardinal image carries; it is found as a fallback, but see the
+  # warning printed below - results from the two are NOT interchangeable.
   _xs="$(_pcm_first_file \
+    "$HOME/cross_sections/endfb-viii.0-hdf5/cross_sections.xml" \
     "$HOME/nuclear_data/endfb-viii.0-hdf5/cross_sections.xml" \
     "$HOME/data/endfb-viii.0-hdf5/cross_sections.xml" \
     "$HOME/openmc_data/endfb-viii.0-hdf5/cross_sections.xml" \
     "$HOME/Documents/Digital Twin/nuclear_data/endfb-viii.0-hdf5/cross_sections.xml" \
     "/opt/nuclear_data/endfb-viii.0-hdf5/cross_sections.xml" \
-    "/usr/share/openmc/endfb-viii.0-hdf5/cross_sections.xml")"
+    "/usr/share/openmc/endfb-viii.0-hdf5/cross_sections.xml" \
+    "$HOME/cross_sections/endfb-vii.1-hdf5/cross_sections.xml" \
+    "$HOME/nuclear_data/endfb-vii.1-hdf5/cross_sections.xml" \
+    "/opt/nuclear_data/endfb-vii.1-hdf5/cross_sections.xml")"
   [ -n "${_xs}" ] && export OPENMC_CROSS_SECTIONS="${_xs}"
 fi
+
+# Record which library is actually in use. Every result must be labelled with
+# it: the committed baselines were produced with VIII.0, and pcL used VIII.0.
+case "${OPENMC_CROSS_SECTIONS:-}" in
+  *viii.0*|*viii-0*|*b8*|*VIII.0*) export PCM_XS_LIBRARY="ENDF/B-VIII.0" ;;
+  *vii.1*|*vii-1*|*b7*|*VII.1*)    export PCM_XS_LIBRARY="ENDF/B-VII.1" ;;
+  "")                              export PCM_XS_LIBRARY="none-found" ;;
+  *)                               export PCM_XS_LIBRARY="unidentified" ;;
+esac
 
 # --------------------------------------------------------------- hardware
 if [ -z "${PCM_CORES:-}" ]; then
