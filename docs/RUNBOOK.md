@@ -136,42 +136,52 @@ development machine (8 GiB) died mid-run; see Part 6, Trap 1.
 | **Tier 1 — Neutronics** | ≥ 4 GiB | ≥ 2 | Standalone OpenMC only (Phases 4–5). No NekRS. |
 | **Tier 0 — Not viable** | < 4 GiB | any | Do not attempt. Report the constraint. |
 
-### If the target is Binder (mybinder.org) or a similar hosted notebook
+Measure, don't assume. In a container use `nproc` and `free -g`; the audit
+script reports both and sizes NekRS accordingly.
 
-**Read this carefully — the honest answer is that most of this will not run there.**
+### If the target is Binder or a similar container-based environment
 
-A typical Binder instance provides roughly **1–2 GB RAM, 1–2 CPUs, an
-ephemeral container, and a ~10 minute idle / ~1 hour session timeout.**
-Against that:
+**Cardinal has already been installed and run on Binder for this project**, so
+treat the install as a solved problem and work from the existing image
+definition rather than rebuilding from scratch.
 
-- **Cardinal cannot be built on Binder.** It is a multi-hour compile of MOOSE +
-  libMesh + PETSc + OpenMC + NekRS and needs far more memory and time than the
-  session allows. There is no conda/pip package for Cardinal.
-- **NekRS cannot run on Binder.** Beyond memory, it JIT-compiles a Fortran
-  interface at startup (Part 6, Trap 1) and needs MPI.
-- **The nuclear data alone (multi-GB) will likely exceed the image/storage
-  budget.**
-- Anything longer than the idle timeout dies mid-run.
+What still needs checking, because a container hides it:
 
-**Therefore, on Binder this project is Tier 0 or at best a restricted Tier 1.**
+1. **Measure the actual limits inside the container**, not the advertised ones:
 
-If you are instructed to make it work on Binder anyway, the only defensible
-option is:
+   ```bash
+   nproc; free -g; ulimit -v; df -h /tmp
+   ```
 
-1. Install **OpenMC alone** via conda (`conda install -c conda-forge openmc`) —
-   this is genuinely feasible.
-2. Fetch **only the nuclides actually used** rather than the full ENDF/B-VIII.0
-   library: U-235, U-238, Zr isotopes, H-1, O-16, Fe/Cr/Ni/Mn/Si/C, plus the
-   three `S(α,β)` tables. This is the difference between a viable and a
-   non-viable image.
-3. Run **only the 2-D unit cell** (Phase 4 `unitcell`, `smoke` or `baseline`
-   config). Expect minutes, not seconds.
-4. **Report it as neutronics-only.** Do not present it as a Cardinal
-   multiphysics result, because Cardinal will not have run.
+   `scripts/audit_environment.sh` reports cores and memory and prints the NekRS
+   sizing table for the numbers it finds. Pick your tier from the measured
+   values.
 
-Do not silently substitute a different code, a different library, or a
-different geometry to make something "work" on Binder. Report the limitation
-instead — that is a correct outcome, not a failure.
+2. **Session lifetime is the real constraint.** Coupled and NekRS runs take
+   tens of minutes and an idle timeout will kill them mid-run. Run long jobs
+   detached with output to a file, and write results to persistent storage
+   rather than container-local `/tmp`, which is lost on restart.
+
+3. **MPI inside containers frequently needs flags.** If `mpirun` refuses to
+   start as root or cannot pick a transport, the usual fixes are
+   `--allow-run-as-root` (OpenMPI) and forcing a shared-memory/tcp transport.
+   NekRS needs a working `mpirun` **and** a working `mpifort` (Part 6, Trap 2).
+
+4. **Confirm the nuclear data is actually present in the image** and that
+   `OPENMC_CROSS_SECTIONS` points at it, including the three `S(α,β)` tables.
+   If the full ENDF/B-VIII.0 library is too large for the image, fetch only the
+   nuclides this model uses — U-235, U-238, Zr isotopes, H-1, O-16,
+   Fe/Cr/Ni/Mn/Si/C — plus `c_H_in_ZrH`, `c_Zr_in_ZrH`, `c_H_in_H2O`. Subsetting
+   the library this way is acceptable; **substituting a different library is
+   not.**
+
+5. **Memory is usually the binding constraint in a container.** Go to Part 6,
+   Trap 1 before running NekRS and size the mesh and rank count from measured
+   RAM.
+
+If a tier genuinely does not fit, report that rather than substituting a
+different code, library, or geometry — that is a correct outcome, not a
+failure.
 
 ## 3.3 Setup
 
