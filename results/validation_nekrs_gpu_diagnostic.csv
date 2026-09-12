@@ -1,0 +1,14 @@
+quantity,value,unit,note
+scope,standalone_diagnostic,-,not coupled to OpenMC or MOOSE
+gpu,NVIDIA_GeForce_GTX_1080_Ti,-,CUDA diagnostic platform
+occa_backend,CUDA,-,hardware acceleration verified
+steps_completed,1000,count,diagnostic stop point
+simulation_time,2.09797758,dimensionless,final diagnostic time
+relative_mass_imbalance,0.0005192558612967,1,final PCM_DIAG value
+outlet_bulk_temperature,0.008735446702107,dimensionless,final PCM_DIAG value
+temperature_minimum,-0.4002683156587,dimensionless,undershoot shows thermal field is not production-ready
+temperature_maximum,3.413933375542,dimensionless,final PCM_DIAG value
+advective_heat_out,0.01072124939294,dimensionless,not yet balanced with wall input
+wall_heat_input,0.7249520505428,dimensionless,final PCM_DIAG value
+occa_max_memory,2683109585,bytes,reported by successful NekRS run
+exit_code,0,integer,software execution completed successfully

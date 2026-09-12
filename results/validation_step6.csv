@@ -1,0 +1,14 @@
+quantity,value,unit,note
+coupled_scope,OpenMC-MOOSE,-,NekRS was not part of this run
+nuclear_data,ENDF/B-VII.1,-,Binder library; do not mix silently with VIII.0 results
+picard_iterations,10,count,production configuration
+coupled_keff_final,1.3066210577542,1,final Picard iteration
+coupled_keff_one_sigma,0.00055,1,OpenMC one-standard-deviation estimate
+max_tally_relative_error,0.0083477476677843,1,final Picard iteration
+average_fuel_temperature,330.39070810876,K,MOOSE solid conduction
+maximum_fuel_temperature,358.99533297188,K,MOOSE solid conduction
+average_clad_temperature,322.27894038058,K,MOOSE solid conduction
+maximum_clad_temperature,336.14506650634,K,MOOSE solid conduction
+integrated_pin_heating,2083.33,W,matches prescribed average-pin power
+wall_clock,2905.49,s,complete coupled-production execution
+coolant_model,imposed_surrogate,-,h and linear bulk-temperature rise; not a NekRS field

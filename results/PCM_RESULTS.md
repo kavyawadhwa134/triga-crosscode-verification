@@ -1,13 +1,32 @@
-# pcM Results — Neutronics (Interim)
+# pcM Results — Neutronics and Two-Way Coupling (Interim)
 
-**Status: INTERIM.** This covers the standalone OpenMC neutronics only
-(PCM_WORKFLOW.md Phases 0–5). MGXS generation, the MOOSE thermal model, the
-NekRS fluid model, and Cardinal coupling (Phases 6–12) are **not yet done**, so
-this report contains **no** fuel, clad, or coolant temperatures and **no**
-velocity or pressure. Those fields are not available and are not estimated.
+**Status: INTERIM.** Standalone OpenMC neutronics and a Binder
+OpenMC-MOOSE average-pin production calculation are complete. A separate
+NekRS CUDA diagnostic has also executed successfully, but NekRS is not yet
+part of the coupled calculation. Consequently, fuel and clad temperatures are
+available; coupled coolant temperature, velocity, pressure, and turbulence
+fields are not.
 
 Generated 2026-09-12 by pcM, independently of pcL. No pcL file or result was
 used as an input; see `spec/independence.md`.
+
+## Binder OpenMC-MOOSE production update
+
+The Binder production case completed 10 Picard iterations using
+ENDF/B-VII.1 in 2,905.49 s. Its final state is:
+
+| Quantity | Value |
+|---|---|
+| Coupled k-effective | 1.3066210577542 ± 0.00055 |
+| Maximum tally relative error | 0.00834775 |
+| Average / maximum fuel temperature | 330.390708 / 358.995333 K |
+| Average / maximum clad temperature | 322.278940 / 336.145067 K |
+| Integrated average-pin heating | 2083.33 W |
+
+This is a two-way OpenMC-MOOSE result. Its coolant heat-transfer coefficient
+and bulk-temperature rise are imposed surrogates; it is not the final
+thermal-hydraulic result. Standardized supervisor-facing tables and figures are
+listed in `results/README.md`.
 
 ---
 
@@ -86,9 +105,11 @@ thermal-fluid model), atmospheric pressure assumed.
 | OpenMC solver | 0.15.4-dev190, commit `66359e5dd8382b81c508458fa64922100627fa89` (Cardinal's build) |
 | OpenMC Python API | 0.15.1.dev0 (input generation only) |
 | Cardinal | `snapshot-20-10-27-54609-g8b05495ce0` |
-| NekRS / MOOSE | present, **not yet exercised** |
+| MOOSE | exercised in the Binder OpenMC-MOOSE production run |
+| NekRS | standalone CUDA diagnostic completed; not yet coupled |
 | Nuclear data | ENDF/B-VIII.0 HDF5, `cross_sections.xml` SHA-256 (first 16) `ba7f6d5a371b5a8d` |
-| OS / hardware | macOS 26.6.2, Apple M2, 8 cores, 8 GiB RAM, arm64 |
+| Primary cold runs | macOS 26.6.2, Apple M2, 8 cores, 8 GiB RAM, arm64 |
+| Coupled/GPU runs | Ubuntu 24.04, Xeon Gold 6136, 92 GiB, GTX 1080 Ti |
 
 **Specification deviation:** the spec names OpenMC **0.16.0**; that version is
 not installed on this machine. See §7 Q2.
@@ -263,9 +284,10 @@ particles/second (unit cell, active batches).
 
 ## 9. Limitations
 
-1. **No thermal-hydraulics.** No fuel, clad, or coolant temperature; no
-   velocity; no pressure. Phases 6–12 are not done. These are absent, not
-   estimated.
+1. **No coupled coolant thermal-hydraulics yet.** Fuel and clad temperatures
+   are available from MOOSE, but the coolant condition is still an imposed
+   surrogate. Coupled coolant temperature, velocity, pressure, and turbulence
+   fields are absent rather than estimated.
 2. **Cold, clean, isothermal at 293 K.** No temperature feedback, no Doppler,
    no thermal expansion, no burnup, no xenon, no control rods, no burnable
    poison.
@@ -281,7 +303,10 @@ particles/second (unit cell, active batches).
 7. **OpenMC version deviates** from the specified 0.16.0.
 8. **No experimental validation.** Nothing here has been compared with
    measured data. Section 5 checks are internal consistency only.
-9. **CPU-only NekRS** on 8 cores / 8 GiB will constrain the coupled phases.
+9. **NekRS execution is not yet production-qualified.** The Apple M2 remains
+   CPU-only. The Binder GTX 1080 Ti CUDA path completed a 1,000-step standalone
+   diagnostic, but MPI launched singleton processes and the diagnostic thermal
+   field had not reached energy balance.
 
 ---
 

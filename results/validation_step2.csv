@@ -1,0 +1,4 @@
+case,quantity,simulated,expected,rel_error,tolerance,status
+unitcell,volume_fraction_sum,1.000000,1.000000,0.000000,1e-12,PASS
+core,pin_power_sum_W,250000.0,250000.0,0.000000,1e-12,PASS
+coupled_production,power_integral_W,2083.33,2083.33,0.000000,1e-12,PASS

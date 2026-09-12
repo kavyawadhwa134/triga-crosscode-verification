@@ -18,8 +18,11 @@ Last updated: 2026-09-12
 
 ## Current
 
-Phases 0–5 complete for standalone OpenMC. Next: Phase 6 (MGXS), then the
-MOOSE/NekRS/Cardinal coupling chain (Phases 7–12), which has not been started.
+Standalone OpenMC and the Binder OpenMC-MOOSE average-pin production run are
+complete. NekRS has passed a separate 1,000-step CUDA diagnostic on a GTX
+1080 Ti, but its temperature field was not yet energy-balanced and it was not
+coupled to OpenMC/MOOSE. Current work is the standalone NekRS production run,
+followed by the three-way coupling implementation.
 
 ## Blocked
 
@@ -66,6 +69,11 @@ results/PCM_RESULTS.md
 results/pcm_openmc_{unitcell,core,core_homog}.csv
 results/pcm_power_{summary,radial,axial}_core.csv
 results/pcm_pin_power_core.csv
+results/{README.md,validation_step2.csv,validation_step5.csv,validation_step6.csv}
+results/validation_nekrs_gpu_diagnostic.csv
+results/pcm_coupled_production{,_openmc}_vii1.csv
+results/paraview_pcm_*.png
+results/pcm_results_figures.pdf
 ```
 
 ## Commands Executed
@@ -123,7 +131,19 @@ genuine OpenMC restriction (one S(α,β) table per nuclide per material) that
 makes a fully smeared core physically ill-posed here. pcM's reported core
 value is the heterogeneous one.
 
-No temperatures, velocities, or pressures — the coupled phases are not done.
+Fuel and clad temperatures are now available from the two-way OpenMC-MOOSE
+production run. Coupled coolant velocity, pressure, temperature, and turbulence
+fields remain unavailable until NekRS production and three-way coupling finish.
+
+Binder OpenMC-MOOSE production, ENDF/B-VII.1, 10 Picard iterations:
+
+| Quantity | Value |
+|---|---|
+| Final k-effective | 1.3066210577542 ± 0.00055 |
+| Average / maximum fuel temperature | 330.390708 / 358.995333 K |
+| Average / maximum clad temperature | 322.278940 / 336.145067 K |
+| Integrated pin heating | 2083.33 W |
+| Runtime | 2905.49 s |
 
 Full report: `results/PCM_RESULTS.md`.
 
@@ -135,15 +155,23 @@ Full report: `results/PCM_RESULTS.md`.
 | Core production (20 M) | 365–446 s |
 | Unit cell baseline (2.5 M) | 44 s |
 | Core baseline (2.5 M) | 38 s |
+| Binder OpenMC-MOOSE production (10 Picard iterations) | 2905.49 s |
+| Standalone NekRS CUDA diagnostic (1000 steps) | 319.21 s |
 
-8 OpenMP threads, 1 MPI rank, Apple M2. ≈53,000 particles/s.
+Cold OpenMC timings used 8 OpenMP threads on the Apple M2. The coupled and
+NekRS timings used the Binder Xeon/GTX 1080 Ti environment; the NekRS
+diagnostic was an intentional serial fallback because the available MPI
+launcher produced singleton processes.
 
 ## Next Step
 
-1. Phase 6 — MGXS generation in the specified 2-group structure (0.625 eV).
-2. Phase 7 — MOOSE thermal model.
-3. Phase 8 — NekRS model (CPU-only; mesh sized to the 8 GiB limit).
-4. Phases 9–10 — Cardinal coupling and coupled smoke test.
+1. Resolve the Binder CUDA runtime path and finish the 2,000-step standalone
+   NekRS production run.
+2. Verify mass and energy balance and extract coolant temperature, velocity,
+   pressure, and turbulence outputs.
+3. Implement and smoke-test three-way OpenMC-MOOSE-NekRS coupling.
+4. Run production, post-process, and provide the independent pcM package to the
+   supervisor for comparison.
 
 Answers to Q1 and Q4 are needed before the core result can be considered
 final; the unit-cell result does not depend on them.

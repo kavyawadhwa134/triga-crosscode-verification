@@ -1,0 +1,10 @@
+quantity,group,value,unit,source
+k_inf,cold_unitcell,1.384207,1,pcM OpenMC production seed 11 ENDF/B-VIII.0
+k_inf_one_sigma,cold_unitcell,0.000214,1,pcM OpenMC production seed 11
+k_eff,cold_bare_heterogeneous_core,1.102059,1,pcM OpenMC production seed 21 ENDF/B-VIII.0
+k_eff_one_sigma,cold_bare_heterogeneous_core,0.000260,1,pcM OpenMC production seed 21
+leakage_fraction,cold_bare_heterogeneous_core,0.20149,1,pcM OpenMC production
+total_power,cold_bare_heterogeneous_core,250000.0,W,pcM OpenMC tally normalization
+pin_peak_to_average,cold_bare_heterogeneous_core,2.2544,1,pcM OpenMC distribcell tally
+peak_power_density,cold_bare_heterogeneous_core,6.5950,W/cm3,pcM OpenMC cylindrical mesh tally
+average_power_density,cold_bare_heterogeneous_core,2.1652,W/cm3,pcM volume-weighted core average

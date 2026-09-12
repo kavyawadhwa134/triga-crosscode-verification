@@ -64,3 +64,16 @@ data library, energy-group structure, reactor power, and boundary/operating
 conditions. These are transcribed into `spec/geometry.md`, `spec/materials.md`,
 and `spec/operating.md`, with every ambiguity and assumption flagged rather
 than resolved by looking at pcL.
+
+## Disclosure: result-format inspection
+
+On 2026-09-12 the user explicitly requested that the existing pcM results be
+arranged in the same delivery format as pcL. To satisfy that request, pcM
+inspected the pcL **result filenames and CSV column schemas**. During the
+schema check, rows from two pcL result CSVs were also displayed by the shell.
+
+No displayed pcL value was copied into a pcM table, used to modify a model,
+used as an acceptance threshold, or used to assess agreement. The standardized
+files in `results/` are populated exclusively from pre-existing pcM outputs and
+the approved specification. The exposure is disclosed here rather than hidden;
+the supervisor remains responsible for the cross-code comparison.
