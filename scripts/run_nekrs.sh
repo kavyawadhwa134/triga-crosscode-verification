@@ -14,6 +14,10 @@ source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 
 RANKS="${1:-${PCM_CORES}}"
 CASE="${PCM_NEK_CASE:-fluid}"
+# CARDINAL on the Binder image was built against the system MPICH.  A Conda
+# MPI launcher can start several singleton processes instead of one MPI job.
+# Allow an override for other machines, but prefer the matching launcher here.
+MPIEXEC="${PCM_MPIEXEC:-/usr/bin/mpirun}"
 cd "${PCM_ROOT}/cardinal/nekrs"
 
 if [ "${RANKS}" -lt 2 ]; then
@@ -31,10 +35,17 @@ if [ ! -f "${CASE}.re2" ]; then
   exit 1
 fi
 
+if [ ! -x "${MPIEXEC}" ]; then
+  echo "ERROR: MPI launcher not executable: ${MPIEXEC}" >&2
+  echo "       Set PCM_MPIEXEC to the mpirun matching your CARDINAL build." >&2
+  exit 1
+fi
+
 echo "case=${CASE} ranks=${RANKS} backend=${PCM_NEKRS_BACKEND} mem=${PCM_MEM_GB}GiB"
+echo "mpi launcher=${MPIEXEC}"
 
 # A stale cache built for a different rank count carries the old lelt.
 rm -rf .cache
 
-exec mpirun -np "${RANKS}" "${NEKRS_HOME}/bin/nekrs" \
+exec "${MPIEXEC}" -np "${RANKS}" "${NEKRS_HOME}/bin/nekrs" \
   --setup "${CASE}.par" --backend "${PCM_NEKRS_BACKEND}"

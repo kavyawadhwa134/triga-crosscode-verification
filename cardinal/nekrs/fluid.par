@@ -48,7 +48,10 @@
   rho = 1.0
   # The legacy negative-Re shorthand is written explicitly in NekRS 26.
   viscosity = 1/4755
-  boundaryTypeMap = zeroDirichlet, udfDirichlet, zeroNeumann, zeroDirichletX/zeroNeumann, zeroDirichletX/zeroNeumann, zeroDirichletY/zeroNeumann, zeroDirichletY/zeroNeumann
+  # This CARDINAL-pinned NekRS build accepts the established Nek5000 aliases
+  # for slip/symmetry planes (symx and symy), rather than the newer expanded
+  # spelling shown by generic NekRS documentation.
+  boundaryTypeMap = zeroDirichlet, udfDirichlet, zeroNeumann, symx, symx, symy, symy
   residualTol = 1.0e-07
 
 [SCALAR TEMPERATURE]
