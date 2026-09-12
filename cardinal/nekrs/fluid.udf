@@ -6,3 +6,11 @@ void UDF_Setup()
   // CARDINAL-pinned NekRS interface. Solver fields begin at their defaults;
   // the inlet and wall conditions establish the physical state.
 }
+
+void UDF_ExecuteStep(double time, int tstep)
+{
+  // This standalone case has no per-step host-side operation. NekRS 26 still
+  // requires the callback symbol to be present.
+  (void) time;
+  (void) tstep;
+}
