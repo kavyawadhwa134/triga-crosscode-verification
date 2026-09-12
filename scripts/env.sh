@@ -151,4 +151,13 @@ if [ -z "${PCM_NEKRS_BACKEND:-}" ]; then
 fi
 export PCM_NEKRS_BACKEND
 
+# Binder installs the CUDA runtime and math libraries in the MOOSE Conda
+# environment rather than a system CUDA prefix. Make them visible to NekRS in
+# fresh terminals. run_nekrs.sh still prepends the system MPICH directory, so
+# this must not reintroduce Conda's singleton-MPI launcher/library mismatch.
+if [ "${PCM_OS}" = linux ] && [ "${PCM_NEKRS_BACKEND}" = CUDA ] \
+   && [ -d "${CONDA_ROOT}/envs/${PCM_MOOSE_ENV}/lib" ]; then
+  export LD_LIBRARY_PATH="${CONDA_ROOT}/envs/${PCM_MOOSE_ENV}/lib${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+fi
+
 unset _pcm_py_fallback _cand _xs
