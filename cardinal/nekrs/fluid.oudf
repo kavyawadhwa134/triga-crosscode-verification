@@ -22,9 +22,9 @@ void udfNeumann(bcData *bc)
 {
   if (isField("scalar temperature")) {
 #ifdef PCM_COUPLED
-    bc->flux = bc->usrwrk[bc->idM];
+    bc->fluxScalar = bc->usrwrk[bc->idxVol];
 #else
-    bc->flux = PCM_STANDALONE_FLUX;
+    bc->fluxScalar = PCM_STANDALONE_FLUX;
 #endif
   }
 }
