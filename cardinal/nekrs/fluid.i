@@ -72,33 +72,21 @@ bl_5 = 1.9510e-2
     bottom_boundary = '2'
     top_boundary = '3'
   []
+  # Select only the four planar outer faces. The former sequence of
+  # SideSetsAroundSubdomainGenerator objects also matched curved clad faces
+  # whose normals happened to point near +/-x or +/-y. Those faces acquired
+  # duplicate lateral IDs and exo2nek retained only 59% of the heated wall as
+  # boundary 1. A fixed-normal generator leaves the curved wall untouched.
   [lateral]
-    type = SideSetsAroundSubdomainGenerator
+    type = SideSetsFromNormalsGenerator
     input = extrude
-    block = '${fluid_id}'
-    new_boundary = '4'
-    normal = '1 0 0'
-  []
-  [lateral2]
-    type = SideSetsAroundSubdomainGenerator
-    input = lateral
-    block = '${fluid_id}'
-    new_boundary = '5'
-    normal = '-1 0 0'
-  []
-  [lateral3]
-    type = SideSetsAroundSubdomainGenerator
-    input = lateral2
-    block = '${fluid_id}'
-    new_boundary = '6'
-    normal = '0 1 0'
-  []
-  [lateral4]
-    type = SideSetsAroundSubdomainGenerator
-    input = lateral3
-    block = '${fluid_id}'
-    new_boundary = '7'
-    normal = '0 -1 0'
+    normals = ' 1  0  0
+               -1  0  0
+                0  1  0
+                0 -1  0'
+    fixed_normal = true
+    normal_tol = 1e-5
+    new_boundary = '4 5 6 7'
   []
 
   second_order = true

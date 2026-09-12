@@ -9,6 +9,10 @@ deviceMemory<dfloat> o_temperatureVelocity;
 dfloat wallArea = 0.0;
 
 constexpr dfloat wallHeatFlux = 0.009946;
+// pi * D_clad * H / D_h^2 for the non-dimensionalized 0.60 m channel.
+// This catches lost or multiply-labelled wall faces before an expensive run.
+constexpr dfloat expectedWallArea = 123.470803507277;
+constexpr dfloat wallAreaTolerance = 0.01;
 constexpr int diagnosticInterval = 100;
 }
 
@@ -31,11 +35,25 @@ void UDF_Setup()
   platform->linAlg->fill(o_one.size(), 1.0, o_one);
   wallArea = mesh->surfaceAreaMultiplyIntegrate(o_wallID, o_one);
 
+  const dfloat wallAreaRelativeError =
+      fabs(wallArea - expectedWallArea) / expectedWallArea;
+  nrsCheck(wallAreaRelativeError > wallAreaTolerance,
+           platform->comm.mpiComm,
+           EXIT_FAILURE,
+           "PCM wall area mismatch: measured %.12e expected %.12e "
+           "(relative error %.6e). Regenerate fluid.re2 and verify sidesets.\n",
+           wallArea,
+           expectedWallArea,
+           wallAreaRelativeError);
+
   o_temperatureVelocity.resize(mesh->dim * nrs->fluid->fieldOffset);
 
   if (platform->comm.mpiRank() == 0)
-    printf("PCM_DIAG_SETUP wallArea=%.12e wallHeatInput=%.12e\n",
+    printf("PCM_DIAG_SETUP wallArea=%.12e expectedWallArea=%.12e "
+           "wallAreaRelativeError=%.12e wallHeatInput=%.12e\n",
            wallArea,
+           expectedWallArea,
+           wallAreaRelativeError,
            wallHeatFlux * wallArea);
 }
 

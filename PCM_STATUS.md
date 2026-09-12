@@ -20,9 +20,11 @@ Last updated: 2026-09-12
 
 Standalone OpenMC and the Binder OpenMC-MOOSE average-pin production run are
 complete. NekRS has passed a separate 1,000-step CUDA diagnostic on a GTX
-1080 Ti, but its temperature field was not yet energy-balanced and it was not
-coupled to OpenMC/MOOSE. Current work is the standalone NekRS production run,
-followed by the three-way coupling implementation.
+1080 Ti, but post-run conservation checks found that only 59.03% of the clad
+surface retained heated-wall boundary ID 1. Those fields are invalid for
+physical use. The mesh generator and runtime wall-area check are corrected;
+current work is regenerating `fluid.re2` and rerunning standalone NekRS before
+three-way coupling.
 
 ## Blocked
 
@@ -165,9 +167,9 @@ launcher produced singleton processes.
 
 ## Next Step
 
-1. Resolve the Binder CUDA runtime path and finish the 2,000-step standalone
-   NekRS production run.
-2. Verify mass and energy balance and extract coolant temperature, velocity,
+1. Regenerate `fluid.re2` from the corrected mesh generator and confirm the
+   nondimensional wall area is 123.4708.
+2. Rerun standalone NekRS and verify mass and energy balance before extracting coolant temperature, velocity,
    pressure, and turbulence outputs.
 3. Implement and smoke-test three-way OpenMC-MOOSE-NekRS coupling.
 4. Run production, post-process, and provide the independent pcM package to the

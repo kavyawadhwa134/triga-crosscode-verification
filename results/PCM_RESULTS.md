@@ -305,8 +305,12 @@ particles/second (unit cell, active batches).
    measured data. Section 5 checks are internal consistency only.
 9. **NekRS execution is not yet production-qualified.** The Apple M2 remains
    CPU-only. The Binder GTX 1080 Ti CUDA path completed a 1,000-step standalone
-   diagnostic, but MPI launched singleton processes and the diagnostic thermal
-   field had not reached energy balance.
+   diagnostic and a 2,000-step continuation, but MPI launched singleton
+   processes and only 59.03% of the clad surface retained heated-wall boundary
+   ID 1. Those NekRS fields are invalid for physical use. The mesh generator
+   now preserves the complete wall and the UDF aborts when wall area differs
+   from the analytic value by more than 1%; a regenerated `fluid.re2` and rerun
+   are required.
 
 ---
 

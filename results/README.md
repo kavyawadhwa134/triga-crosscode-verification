@@ -35,8 +35,11 @@ tables. `PCM_RESULTS.md` is the narrative scientific report.
   are imposed through the documented heat-transfer surrogate; NekRS is not in
   that coupling chain.
 - The standalone NekRS GTX 1080 Ti run reached exit code 0 and demonstrates a
-  working CUDA path, but its 1,000-step diagnostic was not thermally converged
-  and must not be reported as the final coolant solution.
+  working CUDA path, but both the 1,000-step diagnostic and subsequent
+  2,000-step run used a mesh in which only 59.03% of the clad surface retained
+  heated-wall boundary ID 1. They are invalid for physical interpretation.
+  The mesh generator has been corrected; a regenerated `fluid.re2` and rerun
+  are required.
 - No pcM rod-transient result exists yet, so this package intentionally does
   not fabricate a `transient_rod_power.csv` file.
 - Large Exodus, OpenMC statepoint, and NekRS checkpoint files are excluded by

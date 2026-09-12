@@ -1,5 +1,6 @@
 quantity,value,unit,note
 scope,standalone_diagnostic,-,not coupled to OpenMC or MOOSE
+validity,invalid_for_physical_use,-,only 59.03 percent of the clad surface retained heated-wall boundary ID 1
 gpu,NVIDIA_GeForce_GTX_1080_Ti,-,CUDA diagnostic platform
 occa_backend,CUDA,-,hardware acceleration verified
 steps_completed,1000,count,diagnostic stop point
@@ -10,5 +11,7 @@ temperature_minimum,-0.4002683156587,dimensionless,undershoot shows thermal fiel
 temperature_maximum,3.413933375542,dimensionless,final PCM_DIAG value
 advective_heat_out,0.01072124939294,dimensionless,not yet balanced with wall input
 wall_heat_input,0.7249520505428,dimensionless,final PCM_DIAG value
+measured_wall_area,72.88880459912,dimensionless,incorrect incomplete boundary 1
+expected_wall_area,123.470803507277,dimensionless,pi times clad diameter times height divided by hydraulic diameter squared
 occa_max_memory,2683109585,bytes,reported by successful NekRS run
 exit_code,0,integer,software execution completed successfully
