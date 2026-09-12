@@ -31,7 +31,7 @@ void UDF_Setup()
   platform->linAlg->fill(o_one.size(), 1.0, o_one);
   wallArea = mesh->surfaceAreaMultiplyIntegrate(o_wallID, o_one);
 
-  o_temperatureVelocity.resize(nrs->fluid->fieldOffsetSum);
+  o_temperatureVelocity.resize(mesh->dim * nrs->fluid->fieldOffset);
 
   if (platform->comm.mpiRank() == 0)
     printf("PCM_DIAG_SETUP wallArea=%.12e wallHeatInput=%.12e\n",
@@ -45,7 +45,10 @@ void UDF_ExecuteStep(double time, int tstep)
     return;
 
   auto mesh = nrs->meshV;
-  auto o_velocity = nrs->fluid->o_solution();
+  // The solver buffer can also contain time-history storage. The surface
+  // integral requires exactly dim * fieldOffset entries from the current state.
+  auto o_velocity = nrs->fluid->o_solution().slice(
+      0, mesh->dim * nrs->fluid->fieldOffset);
   auto o_temperature = nrs->scalar->o_solution("temperature");
 
   const dfloat inletFlow = mesh->surfaceAreaNormalMultiplyVectorIntegrate(
