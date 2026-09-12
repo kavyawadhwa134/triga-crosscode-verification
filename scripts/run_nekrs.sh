@@ -18,6 +18,10 @@ CASE="${PCM_NEK_CASE:-fluid}"
 # MPI launcher can start several singleton processes instead of one MPI job.
 # Allow an override for other machines, but prefer the matching launcher here.
 MPIEXEC="${PCM_MPIEXEC:-/usr/bin/mpirun}"
+# CARDINAL was linked with the system MPICH.  notebook's Conda environment
+# also ships MPI libraries; if it appears first in LD_LIBRARY_PATH, MPICH's
+# launcher creates isolated singleton processes. Keep the linked MPICH first.
+SYSTEM_MPICH_LIB="/usr/lib/x86_64-linux-gnu/mpich/lib"
 cd "${PCM_ROOT}/cardinal/nekrs"
 
 if [ "${RANKS}" -lt 2 ]; then
@@ -43,6 +47,10 @@ fi
 
 echo "case=${CASE} ranks=${RANKS} backend=${PCM_NEKRS_BACKEND} mem=${PCM_MEM_GB}GiB"
 echo "mpi launcher=${MPIEXEC}"
+
+if [ -d "${SYSTEM_MPICH_LIB}" ]; then
+  export LD_LIBRARY_PATH="${SYSTEM_MPICH_LIB}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
+fi
 
 # A stale cache built for a different rank count carries the old lelt.
 rm -rf .cache

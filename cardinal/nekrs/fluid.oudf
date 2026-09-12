@@ -1,0 +1,30 @@
+// Device-side boundary conditions for the CARDINAL-pinned NekRS interface.
+//
+// PCM_STANDALONE_FLUX is the uniform non-dimensional clad heat flux used for
+// the standalone coolant case. Coupled runs replace it with MOOSE/OpenMC data.
+
+#define PCM_STANDALONE_FLUX 0.009946
+
+void udfDirichlet(bcData *bc)
+{
+  if (isField("fluid velocity")) {
+    // Side 2: uniform axial inlet velocity, U* = 1.
+    bc->uxFluid = 0.0;
+    bc->uyFluid = 0.0;
+    bc->uzFluid = 1.0;
+  } else if (isField("scalar temperature")) {
+    // Side 2: inlet temperature, T* = 0 (293 K).
+    bc->sScalar = 0.0;
+  }
+}
+
+void udfNeumann(bcData *bc)
+{
+  if (isField("scalar temperature")) {
+#ifdef PCM_COUPLED
+    bc->flux = bc->usrwrk[bc->idM];
+#else
+    bc->flux = PCM_STANDALONE_FLUX;
+#endif
+  }
+}
