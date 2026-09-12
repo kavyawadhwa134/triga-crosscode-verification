@@ -132,8 +132,8 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
     <span><b>Cardinal</b> snapshot-20-10-27</span>
     <span><b>OpenMC</b> 0.16.1-dev14</span>
     <span><b>MOOSE</b> dddbb15e48</span>
-    <span><b>Platform</b> Ubuntu container, 32 GiB</span>
-    <span><b>Status</b> neutronics + conduction complete; CFD pending</span>
+    <span><b>Platform</b> Ubuntu container, 32 GiB, GTX 1080 Ti</span>
+    <span><b>Status</b> neutronics + conduction converged; CFD flow converged, thermal transient</span>
   </div>
 </header>
 
@@ -162,19 +162,60 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
   </div>
 
   <div class="callout alert">
-    <div class="ct">Not produced — do not treat as complete</div>
-    <p><b>No thermal-hydraulic solution exists.</b> NekRS has not run. Coolant velocity,
-    pressure and the coolant temperature field are absent. The coolant is <em>imposed</em>
-    through a heat-transfer correlation, not solved.</p>
-    <p>Also outstanding: three-way coupling, MGXS generation, and the +0.5&nbsp;$ transient.</p>
+    <div class="ct">Thermal-hydraulics: flow converged, temperature not</div>
+    <p>NekRS has now run to completion (20 000 steps, exit 0). The <b>flow field is
+    converged</b> — mass imbalance flat at 0.12% — but the <b>temperature field is still
+    transient</b>: only 34.6% of the wall heat leaves the domain, so 65.4% is still
+    accumulating. <b>Coolant temperatures in §6 are lower bounds, not steady-state values.</b></p>
+    <p>Still outstanding: a converged thermal field, three-way coupling, MGXS generation,
+    and the +0.5&nbsp;$ transient.</p>
   </div>
   </div>
 </section>
 
 <!-- 2 MODEL -->
 <section>
-  <div class="shead"><div class="snum">02</div><h2>Model and scope</h2></div>
+  <div class="shead"><div class="snum">02</div><h2>Scope, objectives and methodology</h2></div>
   <div class="sbody">
+  <h3>Objective</h3>
+  <div class="prose">
+  <p>Produce an independently reproducible TRIGA Mark I reference calculation using the
+  Cardinal ecosystem, to serve as a cross-code reference against a parallel calculation
+  (&ldquo;pcL&rdquo;) performed in GeN-Foam and OFFBEAT. The two calculations were produced
+  <b>without reference to one another</b>; only the scientific problem definition is shared.
+  pcM's results were frozen under git tag <code>pcm-independent-v1</code> before any pcL
+  material was consulted.</p>
+  </div>
+
+  <h3>Scope</h3>
+  <div class="prose">
+  <p><b>In scope:</b> steady-state eigenvalue neutronics for a 2-D unit cell and a 3-D bare
+  core; coupled neutronics&ndash;conduction for a single pin; standalone coolant CFD.</p>
+  <p><b>Out of scope, and not attempted:</b> the +0.5&nbsp;$ reactivity transient (the project
+  workflow specifies a steady-state production run and defines no transient phase); burnup;
+  control-rod worth; experimental comparison.</p>
+  <p><b>Model reduction.</b> The pin-level coupled model is a unit cell, not a full core. This
+  was forced by the original 8&nbsp;GiB development machine and retained after the move to a
+  32&nbsp;GiB host so the coupled result stays comparable to the frozen baseline. It means all
+  coupled temperatures describe an <b>average pin</b>; pcM's own bare-core peaking factor of
+  2.2544 implies a hot channel is materially hotter.</p>
+  </div>
+
+  <h3>Methodology</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Stage</th><th>Code</th><th>Method</th></tr></thead>
+    <tbody>
+      <tr><td>Neutronics</td><td>OpenMC</td><td>Monte Carlo, continuous-energy, ENDF/B-VIII.0 (VII.1 for the coupled run)</td></tr>
+      <tr><td>Solid conduction</td><td>MOOSE</td><td>Finite element, 6400 elements, stitched fuel&ndash;clad contact</td></tr>
+      <tr><td>Coolant</td><td>NekRS</td><td>Spectral element, implicit LES (HPFRT), polynomial order 7</td></tr>
+      <tr><td>Coupling</td><td>Cardinal</td><td>Picard iteration; cell-averaged power to MOOSE, cell temperature back to OpenMC</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">Thermal scattering <code>S(&alpha;,&beta;)</code> for
+  <code>c_H_in_ZrH</code> and <code>c_Zr_in_ZrH</code> is applied throughout. Without it the
+  bound-hydrogen physics that defines a TRIGA is absent; §4 demonstrates it is present.</p>
+
+  <h3>Specification</h3>
   <div class="tw"><table>
     <thead><tr><th>Parameter</th><th class="n">Value</th><th>Basis</th></tr></thead>
     <tbody>
@@ -312,15 +353,145 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
   </div>
 </section>
 
-<!-- 6 COMPARISON -->
+
+<!-- 6 NEKRS -->
 <section>
-  <div class="shead"><div class="snum">06</div><h2>Comparison with pcL</h2></div>
+  <div class="shead"><div class="snum">06</div><h2>Thermal-hydraulics (NekRS)</h2></div>
+  <div class="sbody">
+  <div class="prose">
+  <p>Implicit LES of the coolant subchannel at Re&nbsp;=&nbsp;4755, polynomial order 7,
+  2880 elements, run on a GTX&nbsp;1080&nbsp;Ti. The run reached 20 000 steps and exited
+  cleanly, but it covered only <b>1.17 flow-through times</b> — enough for momentum to
+  equilibrate, not for the thermal field.</p>
+  </div>
+
+  <div class="figs">
+    <div class="fig"><div class="lab">Flow field</div><div class="val" style="color:var(--good)">Converged</div>
+      <div class="unc">mass imbalance 0.12%</div></div>
+    <div class="fig"><div class="lab">Thermal field</div><div class="val" style="color:var(--alert)">Transient</div>
+      <div class="unc">still heating</div></div>
+    <div class="fig"><div class="lab">Energy closure</div><div class="val num">34.6%</div>
+      <div class="unc">target 100%</div></div>
+    <div class="fig"><div class="lab">Flow-throughs</div><div class="val num">1.17</div>
+      <div class="unc">~5 needed</div></div>
+  </div>
+
+  <div class="chart">
+    <div class="ctitle">Coolant temperature through the run</div>
+    <div class="csub">All three measures climb monotonically to the final step. The minimum
+      sits below the 293 K inlet throughout, which no boundary condition in this model can
+      produce.</div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--s1)"></span>Maximum</span>
+      <span class="lg"><span class="sw" style="background:var(--s2)"></span>Bulk outlet</span>
+      <span class="lg"><span class="sw" style="background:var(--s3)"></span>Minimum</span>
+    </div>
+    <div class="sv"><svg id="c-nekT" viewBox="0 0 760 280" role="img"
+      aria-label="Coolant temperatures rising monotonically through 20000 steps without plateau"></svg>
+      <div class="tip" id="t-nekT"></div></div>
+  </div>
+
+  <div class="chart">
+    <div class="ctitle">Energy closure</div>
+    <div class="csub">At steady state the heat advected out of the outlet must equal the heat
+      entering through the clad wall. It reaches 34.6% and is still climbing steeply — the
+      domain is still filling with energy, so this run is a snapshot of a transient.</div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--s1)"></span>Advected out / wall input</span>
+      <span class="lg"><span class="sw" style="background:var(--ink3);height:2px"></span>Steady balance (100%)</span>
+    </div>
+    <div class="sv"><svg id="c-nekQ" viewBox="0 0 760 250" role="img"
+      aria-label="Energy closure rising to only 34.6 percent of the 100 percent steady balance"></svg>
+      <div class="tip" id="t-nekQ"></div></div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Quantity</th><th class="n">At 20 000 steps</th><th class="n">Steady-state target</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Bulk outlet temperature</td><td class="n">294.24 K</td><td class="n">296.57 K</td><td><span class="pill warn">lower bound</span></td></tr>
+      <tr><td>Maximum temperature</td><td class="n">333.03 K</td><td class="n">—</td><td><span class="pill warn">still rising</span></td></tr>
+      <tr><td>Minimum temperature</td><td class="n">291.52 K</td><td class="n">≥ 293 K</td><td><span class="pill no">unphysical</span></td></tr>
+      <tr><td>Advected heat / wall heat</td><td class="n">34.6%</td><td class="n">100%</td><td><span class="pill no">not closed</span></td></tr>
+      <tr><td>Mass-flow imbalance</td><td class="n">0.122%</td><td class="n">→ 0</td><td><span class="pill ok">converged</span></td></tr>
+      <tr><td>Wall-clock</td><td class="n">4294 s</td><td class="n">—</td><td>GPU, 20 000 steps</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="callout alert">
+    <div class="ct">Two defects found in this run</div>
+    <p><b>1 · The minimum temperature is below the inlet.</b> 291.52 K in a domain whose only
+    thermal boundary conditions are a 293 K inlet and a heated wall. With no heat sink this
+    cannot be physical; it is an undershoot from the high-pass filter stabilisation and it
+    does not decay.</p>
+    <p><b>2 · Three of the four figures are unreadable</b> — they plot axes spanning ±0.04 cm
+    for a channel that is ±2.1 cm wide and 60 cm tall. <b>The simulation data is not at
+    fault:</b> the field files are intact (1 474 560 points, fields <code>UPT</code>, t* =
+    29.338). Only <code>fluid0.f00000</code> carries mesh coordinates — every later snapshot
+    is fields-only — so the plotting script read geometry from a file that has none. The fix
+    is in post-processing, not in the solve.</p>
+  </div>
+
+  <h3>What it would take to converge</h3>
+  <p class="prose">Bulk outlet temperature is rising at roughly 0.018 in T* per time unit and
+  energy closure is still climbing steeply. Reaching a defensible steady state needs on the
+  order of five flow-throughs rather than 1.17:</p>
+  <div class="tw"><table>
+    <thead><tr><th>Parameter</th><th class="n">This run</th><th class="n">Needed</th></tr></thead>
+    <tbody>
+      <tr><td>Non-dimensional time t*</td><td class="n">29.3</td><td class="n">~126</td></tr>
+      <tr><td>Timesteps</td><td class="n">20 000</td><td class="n">~85 700</td></tr>
+      <tr><td>GPU wall-clock</td><td class="n">1.2 h</td><td class="n">~5.1 h</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">The filter-induced undershoot should be resolved before committing five
+  hours of GPU time, since it indicates the scalar stabilisation is too aggressive and a
+  longer run would inherit the same artifact.</p>
+  </div>
+</section>
+
+<!-- 7 COMPARISON -->
+<section>
+  <div class="shead"><div class="snum">07</div><h2>Comparison with pcL</h2></div>
   <div class="sbody">
   <div class="callout">
-    <div class="ct">Scope note</div>
-    <p>pcM's governing instructions assign the pcL comparison to the supervisor, not to pcM.
-    The material below is provided at explicit request and should be read as pcM's
-    <em>input</em> to a comparison, not as pcM's verdict on agreement.</p>
+    <div class="ct">Provenance and scope of this section</div>
+    <p>pcM's governing instructions assign the pcL comparison to the supervisor. This section
+    is provided at explicit request and is pcM's <em>input</em> to a comparison, not a verdict.</p>
+    <p><b>The pcL figures below were not retrieved from a repository.</b> The shared benchmark
+    repository (<code>triga-markI-benchmark</code>, last pushed 2026-09-11) has
+    <code>genfoam/</code> and <code>results/</code> containing only <code>.gitkeep</code>
+    placeholders. The values are those supplied in the project handoff message and carry no
+    stated uncertainty except on k-infinity, no model description, and no independent
+    verification. They should be confirmed against pcL's actual output before any conclusion
+    rests on them.</p>
+  </div>
+
+  <h3>The two calculations are not methodologically equivalent</h3>
+  <div class="prose">
+  <p>Before comparing numbers it matters that the codes solve different equations:</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th></th><th>pcM (Cardinal)</th><th>pcL (GeN-Foam / OFFBEAT)</th></tr></thead>
+    <tbody>
+      <tr><td>Neutron transport</td><td>Monte Carlo, continuous energy</td><td>Deterministic, multigroup diffusion / SP3</td></tr>
+      <tr><td>Energy treatment</td><td>Continuous, full spectrum</td><td>2 groups, 0.625 eV cutoff</td></tr>
+      <tr><td>Thermal-fluid</td><td>Spectral-element LES</td><td>Finite-volume RANS / porous medium</td></tr>
+      <tr><td>Fuel performance</td><td>Not modelled</td><td>OFFBEAT</td></tr>
+      <tr><td>Solution error</td><td>Statistical, quantified (±pcm)</td><td>Discretisation + method, not quantified here</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout">
+    <div class="ct">A second candidate explanation for the k-effective gap</div>
+    <p>pcM's bare core leaks <b>20.1%</b> of its neutrons. Few-group diffusion theory is least
+    accurate exactly there — strong leakage, steep flux gradients, a small core and a large
+    bound-hydrogen scattering effect. A diffusion solution would be expected to
+    <em>over</em>-predict k in such a configuration, which is the direction of the observed
+    difference.</p>
+    <p>This compounds with the reflector question rather than replacing it. It is also
+    relevant that <b>pcM never generated the 2-group MGXS</b> the workflow intended it to
+    supply (Phase 6, not run), so pcL's group constants were produced by some other route.
+    Comparing a continuous-energy Monte Carlo k against a 2-group diffusion k computed from
+    independently generated cross sections is not a like-for-like comparison.</p>
   </div>
 
   <h3>The one directly comparable quantity</h3>
@@ -374,17 +545,77 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
   </div>
 </section>
 
-<!-- 7 LIMITATIONS -->
+
+<!-- VERIFICATION STATUS -->
 <section>
-  <div class="shead"><div class="snum">07</div><h2>Limitations</h2></div>
+  <div class="shead"><div class="snum">08</div><h2>Verification status</h2></div>
+  <div class="sbody">
+  <div class="callout alert">
+    <div class="ct">This work is verified, not validated</div>
+    <p>Verification asks whether the equations are solved correctly. Validation asks whether
+    the equations describe reality, and is establishable only against experimental data.
+    <b>No experimental data was used anywhere in this work</b>, so no part of it is validated,
+    and agreement between two codes is not a substitute — two codes can agree and both be
+    wrong, particularly when they share a specification, a nuclear data library, or an
+    erroneous assumption.</p>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Level</th><th>Question</th><th>Status</th><th>Evidence</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Software</td><td>Does the code execute correctly?</td>
+        <td><span class="pill ok">met</span></td>
+        <td>All solvers run to completion; power conserved exactly at 2083.33 W</td></tr>
+      <tr><td>2 · Numerical</td><td>Is the solution converged?</td>
+        <td><span class="pill warn">partial</span></td>
+        <td>Neutronics and conduction converged; <b>CFD thermal field is not</b>; no mesh or
+            polynomial-order refinement study performed</td></tr>
+      <tr><td>3 · Physics</td><td>Is the behaviour physically sound?</td>
+        <td><span class="pill warn">partial</span></td>
+        <td>Conduction within 1.1% of analytic; ZrH feedback confirmed at −6.34 pcm/K;
+            <b>but CFD shows an unphysical sub-inlet temperature</b></td></tr>
+      <tr><td>4 · Cross-code</td><td>Does it agree with pcL?</td>
+        <td><span class="pill warn">inconclusive</span></td>
+        <td>k-infinity within threshold; k-effective 20× outside it, cause unresolved;
+            pcL figures unverified</td></tr>
+      <tr><td>5 · Experimental</td><td>Does it match measurement?</td>
+        <td><span class="pill no">not attempted</span></td>
+        <td>No experimental data exists in this project</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>What would be required to close each gap</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Gap</th><th>Action</th><th class="n">Est. cost</th></tr></thead>
+    <tbody>
+      <tr><td>CFD thermal not converged</td><td>Extend to ~5 flow-throughs after resolving the filter undershoot</td><td class="n">~5 h GPU</td></tr>
+      <tr><td>Sub-inlet temperature</td><td>Reduce scalar HPFRT strength; re-check with a short run</td><td class="n">~1 h GPU</td></tr>
+      <tr><td>No mesh independence</td><td>Repeat at order 5 and order 8; compare integral quantities</td><td class="n">~8 h GPU</td></tr>
+      <tr><td>k-effective discrepancy</td><td>Add graphite reflector and control rods; re-run core eigenvalue</td><td class="n">~1 h CPU</td></tr>
+      <tr><td>Library deviation</td><td>Re-run coupled production on ENDF/B-VIII.0</td><td class="n">~1 h CPU</td></tr>
+      <tr><td>pcL figures unverified</td><td>Obtain pcL's actual output files and model description</td><td class="n">—</td></tr>
+      <tr><td>No validation</td><td>Obtain TRIGA experimental data (criticality, temperature)</td><td class="n">—</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+</section>
+
+<!-- LIMITATIONS -->
+<section>
+  <div class="shead"><div class="snum">09</div><h2>Limitations</h2></div>
   <div class="sbody">
   <div class="prose">
   <p>Stated per the verification hierarchy: software verification and numerical convergence
   are established; one physics check passes; cross-code comparison is the supervisor's;
   <b>experimental validation has not been attempted and no experimental data exists here.</b></p>
   <ul>
-    <li><b>No fluid solution.</b> NekRS has not run. The coolant is represented by an imposed
-      heat-transfer coefficient and a linear bulk temperature rise.</li>
+    <li><b>The CFD thermal field is not converged.</b> 34.6% energy closure after 1.17
+      flow-throughs. Coolant temperatures are lower bounds.</li>
+    <li><b>The CFD shows an unphysical minimum temperature</b> of 291.52 K against a 293 K
+      inlet with no heat sink — a filter-stabilisation artifact that does not decay.</li>
+    <li><b>Conduction still uses an imposed film coefficient.</b> NekRS ran standalone; it is
+      not yet coupled back, so §3 temperatures still rest on the Dittus-Boelter correlation.</li>
+    <li><b>No mesh or polynomial-order independence study</b> was performed for the CFD.</li>
     <li><b>The film coefficient is the dominant uncertainty</b> — 63% of the temperature rise,
       from a correlation used outside its reliable Reynolds range.</li>
     <li><b>Average pin, not hot channel.</b> Peak/average is 2.2544.</li>
@@ -400,7 +631,7 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
 
 <!-- 8 REPRO -->
 <section>
-  <div class="shead"><div class="snum">08</div><h2>Reproduction</h2></div>
+  <div class="shead"><div class="snum">10</div><h2>Reproduction</h2></div>
   <div class="sbody">
   <div class="tw"><table>
     <thead><tr><th>Item</th><th>Value</th></tr></thead>
@@ -591,4 +822,29 @@ lineChart("c-tc","t-tc",TC,[cv('--s3')],"Fuel temperature (K)","k-infinity",
   const t=el("text",{x:(M.l+W-M.r)/2,y:H-M.b+40,"text-anchor":"middle",fill:ink3,"font-size":11.5});
   t.textContent="k-effective";svg.appendChild(t);
 })();
+const NEK=[[0,293,293,293,0],[500,293.018,299.58,292.67,0.49],[1000,293.037,302.76,291.96,1.03],[1500,293.057,305.03,291.63,1.59],[2000,293.078,306.41,291.53,2.18],[2500,293.099,307.3,291.51,2.78],[3000,293.122,308.87,291.51,3.41],[3500,293.145,310.23,291.51,4.05],[4000,293.168,311.29,291.51,4.71],[4500,293.193,312.15,291.52,5.39],[5000,293.217,313.21,291.52,6.09],[5500,293.243,314.19,291.52,6.8],[6000,293.269,315.13,291.52,7.52],[6500,293.295,316,291.52,8.26],[7000,293.322,316.88,291.52,9.01],[7500,293.349,317.69,291.52,9.78],[8000,293.377,318.5,291.52,10.55],[8500,293.405,319.28,291.52,11.34],[9000,293.433,320.02,291.52,12.13],[9500,293.462,320.75,291.52,12.94],[10000,293.491,321.46,291.52,13.75],[10500,293.521,322.15,291.52,14.58],[11000,293.55,322.82,291.52,15.41],[11500,293.58,323.48,291.52,16.25],[12000,293.61,324.13,291.52,17.09],[12500,293.641,324.76,291.52,17.94],[13000,293.671,325.38,291.52,18.8],[13500,293.702,325.98,291.52,19.66],[14000,293.733,326.58,291.52,20.54],[14500,293.766,327.16,291.52,21.44],[15000,293.799,327.73,291.52,22.36],[15500,293.827,328.3,291.52,23.15],[16000,293.859,328.86,291.52,24.04],[16500,293.901,329.4,291.52,25.23],[17000,293.942,329.94,291.52,26.37],[17500,293.978,330.47,291.52,27.37],[18000,294.016,331,291.52,28.44],[18500,294.064,331.51,291.52,29.78],[19000,294.12,332.02,291.52,31.35],[19500,294.179,332.53,291.52,33],[20000,294.236,333.03,291.52,34.6]];
+
+lineChart("c-nekT","t-nekT",NEK.map(r=>[r[0],r[2],r[1],r[3]]),
+  [cv('--s1'),cv('--s2'),cv('--s3')],"NekRS timestep","Temperature (K)",
+  v=>v.toFixed(0),v=>(v/1000).toFixed(0)+"k",
+  p=>`<b>step ${p.raw[0].toLocaleString()}</b><br>max ${p.raw[1].toFixed(2)} K<br>outlet ${p.raw[2].toFixed(3)} K<br>min ${p.raw[3].toFixed(2)} K`);
+
+lineChart("c-nekQ","t-nekQ",NEK.map(r=>[r[0],r[4]]),[cv('--s1')],
+  "NekRS timestep","Advected out / wall input (%)",
+  v=>v.toFixed(0),v=>(v/1000).toFixed(0)+"k",
+  p=>`<b>step ${p.raw[0].toLocaleString()}</b><br>closure ${p.raw[1].toFixed(2)}%<br><b>${(100-p.raw[1]).toFixed(1)}% accumulating</b>`);
+
+(function(){ // 100% steady-balance reference on the closure chart
+  const svg=document.getElementById("c-nekQ"); if(!svg) return;
+  const W=760,H=250,M={l:56,r:22,t:14,b:44};
+  const ys=NEK.map(r=>r[4]); const yd=nice(Math.min(...ys),Math.max(...ys),5);
+  if(yd.hi<100){ // extend so the 100% line is on-scale
+    const Y=v=>H-M.b-(v-yd.lo)/(100-yd.lo)*(H-M.t-M.b);
+    svg.appendChild(el("line",{x1:M.l,x2:W-M.r,y1:Y(100),y2:Y(100),
+      stroke:cv('--ink3'),"stroke-width":2,opacity:.7}));
+    const t=el("text",{x:W-M.r,y:Y(100)-8,"text-anchor":"end",fill:cv('--ink3'),
+      "font-size":11,"font-family":"IBM Plex Mono, monospace"});
+    t.textContent="steady balance = 100%";svg.appendChild(t);}
+})();
+
 </script>
