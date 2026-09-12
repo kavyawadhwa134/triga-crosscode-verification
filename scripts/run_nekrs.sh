@@ -57,8 +57,20 @@ if [ -d "${SYSTEM_MPICH_LIB}" ]; then
   export LD_LIBRARY_PATH="${SYSTEM_MPICH_LIB}${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 fi
 
-# A stale cache built for a different rank count carries the old lelt.
-rm -rf .cache
+# Keep separately reusable caches for each backend and rank count. Set
+# PCM_NEKRS_CLEAN_CACHE=yes only when changing mesh/order or recovering from a
+# failed JIT compilation; normal reruns should reuse the expensive GPU kernels.
+CACHE_BACKEND="$(printf '%s' "${PCM_NEKRS_BACKEND}" | tr '[:upper:]' '[:lower:]')"
+CACHE_TAG="${CACHE_BACKEND}-np${RANKS}"
+export NEKRS_CACHE_DIR="${PCM_NEKRS_CACHE_DIR:-${PCM_ROOT}/cardinal/nekrs/.cache/${CACHE_TAG}}"
+export OCCA_CACHE_DIR="${PCM_OCCA_CACHE_DIR:-${HOME}/.cache/occa/${CACHE_TAG}}"
+
+if [ "${PCM_NEKRS_CLEAN_CACHE:-no}" = "yes" ]; then
+  rm -rf -- "${NEKRS_CACHE_DIR}" "${OCCA_CACHE_DIR}"
+fi
+mkdir -p "${NEKRS_CACHE_DIR}" "${OCCA_CACHE_DIR}"
+echo "nekrs cache=${NEKRS_CACHE_DIR}"
+echo "occa cache=${OCCA_CACHE_DIR}"
 
 if [ "${RANKS}" -eq 1 ]; then
   echo "WARNING: intentional serial fallback; no MPI acceleration is available."
