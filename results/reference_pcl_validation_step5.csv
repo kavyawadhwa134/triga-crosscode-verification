@@ -1,0 +1,17 @@
+quantity,group,value,unit,source
+k-inf,-,1.38810 +/- 0.00123,-,openmc pin-cell (70b/20inact/8000pp)
+removal,fast,4.77341,1/m,absorption + out-scatter (no self)
+removal,thermal,8.4919,1/m,absorption + out-scatter (no self)
+nuSigmaF,fast,0.379899,1/m,OpenMC nu-fission
+nuSigmaF,thermal,12.5219,1/m,OpenMC nu-fission
+S11,fast->fast,39.7524,1/m,P0 scatter matrix
+S12,fast->thermal,4.22693,1/m,P0 scatter matrix
+S21,thermal->fast,0.023426,1/m,P0 scatter matrix
+S22,thermal->thermal,201.932,1/m,P0 scatter matrix
+D,fast,0.00749023,m,diffusion-coefficient
+D,thermal,0.00158363,m,diffusion-coefficient
+chi,fast,1.0,-,fission spectrum
+chi,thermal,0.0,-,fission spectrum
+IV,fast,6.62997e-06,s/m,inverse velocity
+IV,thermal,0.000331676,s/m,inverse velocity
+genfoam_smoke_keff,-,1.331,-,GeN-Foam diffusion on 2D channel test

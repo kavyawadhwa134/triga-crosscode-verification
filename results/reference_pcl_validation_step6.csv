@@ -1,0 +1,11 @@
+quantity,value,unit,note
+steady_keff,1.240544,-,eigenvalue diffusion, bare homogenized box vacuum BCs
+steady_power,250000,W,target
+steady_Tcool_max,306.47,K,fluid T
+steady_TfuelAvg_max,594.2,K (321 C),sub-scale pin avg, well below 750 C limit
+steady_peaking_max_over_avg,2.45,-,single zone: cosine-like, flat by construction
+transient_insertion,+0.5 $,0.00325 dk/k ramp 100 -> 100.5 s
+transient_power_peak,489723,W,at t = 100.56 s
+transient_power_final,304884,W,Doppler-limited new equilibrium
+transient_TfuelAvg_final,544.59,K,at t = 106 s
+transient_net_reactivity_final,-3.87,pcm,ext +325 vs Doppler -328.9

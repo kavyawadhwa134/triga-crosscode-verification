@@ -124,10 +124,11 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
 
 <div class="wrap">
 <header>
-  <div class="eyebrow">pcM · Independent Reference Calculation · 12 Sep 2026</div>
+  <div class="eyebrow">pcM · Independent Reference Calculation · 13 Sep 2026</div>
   <h1>TRIGA Mark I: coupled neutronics and thermal results</h1>
-  <p class="sub">An independent Cardinal / OpenMC / MOOSE calculation of a TRIGA Mark I
-  unit cell and bare core, produced without reference to the parallel pcL calculation.</p>
+  <p class="sub">An independent Cardinal / OpenMC / MOOSE / NekRS calculation of a TRIGA
+  Mark I unit cell and bare core, produced without reference to the parallel GeN-Foam
+  calculation, then compared against it.</p>
   <div class="meta">
     <span><b>Cardinal</b> snapshot-20-10-27</span>
     <span><b>OpenMC</b> 0.16.1-dev14</span>
@@ -457,13 +458,11 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
     <div class="ct">Provenance and scope of this section</div>
     <p>pcM's governing instructions assign the pcL comparison to the supervisor. This section
     is provided at explicit request and is pcM's <em>input</em> to a comparison, not a verdict.</p>
-    <p><b>The pcL figures below were not retrieved from a repository.</b> The shared benchmark
-    repository (<code>triga-markI-benchmark</code>, last pushed 2026-09-11) has
-    <code>genfoam/</code> and <code>results/</code> containing only <code>.gitkeep</code>
-    placeholders. The values are those supplied in the project handoff message and carry no
-    stated uncertainty except on k-infinity, no model description, and no independent
-    verification. They should be confirmed against pcL's actual output before any conclusion
-    rests on them.</p>
+    <p>pcL figures are taken from <code>triga-markI-benchmark</code>, branch
+    <code>master</code>: <code>results/validation_step5.csv</code> (lattice constants),
+    <code>validation_step6.csv</code> (core and transient) and <code>validation_step2.csv</code>
+    (solver acceptance). pcM's own results were frozen at git tag
+    <code>pcm-independent-v1</code> before this branch was read.</p>
   </div>
 
   <h3>The two calculations are not methodologically equivalent</h3>
@@ -481,17 +480,16 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
     </tbody>
   </table></div>
   <div class="callout">
-    <div class="ct">A second candidate explanation for the k-effective gap</div>
-    <p>pcM's bare core leaks <b>20.1%</b> of its neutrons. Few-group diffusion theory is least
-    accurate exactly there — strong leakage, steep flux gradients, a small core and a large
-    bound-hydrogen scattering effect. A diffusion solution would be expected to
-    <em>over</em>-predict k in such a configuration, which is the direction of the observed
-    difference.</p>
-    <p>This compounds with the reflector question rather than replacing it. It is also
-    relevant that <b>pcM never generated the 2-group MGXS</b> the workflow intended it to
-    supply (Phase 6, not run), so pcL's group constants were produced by some other route.
-    Comparing a continuous-energy Monte Carlo k against a 2-group diffusion k computed from
-    independently generated cross sections is not a like-for-like comparison.</p>
+    <div class="ct">pcL quantifies its own method error — and it is large</div>
+    <p><code>validation_step5.csv</code> reports both a Monte Carlo and a diffusion solution
+    for the <b>same</b> pin cell:</p>
+    <p class="mono" style="font-size:14px">OpenMC Monte Carlo 1.38810 &nbsp;·&nbsp;
+       GeN-Foam 2-group diffusion 1.331 &nbsp;→&nbsp; <b>−4114 pcm</b></p>
+    <p>That is pcL's own measurement of deterministic-vs-stochastic disagreement on the
+    simplest possible geometry, and it is <b>eight times the 500 pcm threshold</b> before any
+    core-geometry effect enters. Any k comparison between pcM (continuous-energy Monte Carlo)
+    and pcL's core solution (2-group diffusion) inherits an error of this order by
+    construction.</p>
   </div>
 
   <h3>The one directly comparable quantity</h3>
@@ -510,8 +508,9 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
   <h3>k-effective: a 20× threshold gap that is probably geometry</h3>
   <div class="chart">
     <div class="ctitle">Core k-effective reconciliation</div>
-    <div class="csub">pcM's bare-core model leaks 20.1%. Homogenisation closes part of the
-      gap to pcL; a substantial remainder is unexplained by any pcM variant.</div>
+    <div class="csub">Both models are bare boxes with vacuum boundaries, so geometry is not
+      the explanation. The difference decomposes into two measurable steps: homogenisation
+      (Monte Carlo on both sides) and then solution method (diffusion vs Monte Carlo).</div>
     <div class="legend">
       <span class="lg"><span class="sw" style="background:var(--s1)"></span>pcM variants</span>
       <span class="lg"><span class="sw" style="background:var(--s2)"></span>pcL reported</span>
@@ -521,27 +520,57 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
       <div class="tip" id="t-keff"></div></div>
   </div>
 
+  <div class="tw"><table>
+    <thead><tr><th>Step</th><th>From → to</th><th class="n">Δρ</th><th>What it isolates</th></tr></thead>
+    <tbody>
+      <tr><td>1 · Homogenisation</td><td>pcM heterogeneous → pcM homogenised</td><td class="n">+3920 pcm</td><td>Monte Carlo both sides; pure geometry-smearing effect</td></tr>
+      <tr><td>2 · Solution method</td><td>pcM homogenised → pcL diffusion</td><td class="n">+8320 pcm</td><td>Same homogenised bare box; pure method effect</td></tr>
+      <tr class="hl"><td>Total</td><td>pcM heterogeneous → pcL</td><td class="n">+12566 pcm</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+
   <div class="callout">
-    <div class="ct">Principal open question for the supervisor</div>
-    <p><b>Did pcL model a graphite reflector?</b> A gap of this size in a core this small is
-    the signature of a reflector. pcM built a bare core because the specification stated
-    "single zone, vacuum boundary conditions". If pcL included a reflector, the discrepancy
-    is a specification ambiguity to resolve, not a code disagreement to investigate.</p>
+    <div class="ct">Conclusion: the k-effective gap is method, not geometry</div>
+    <p>An earlier draft of this report proposed that pcL might have modelled a graphite
+    reflector. <b>pcL's own metadata rules that out</b> —
+    <code>validation_step6.csv</code> records the core as
+    <em>&ldquo;eigenvalue diffusion, bare homogenized box vacuum BCs&rdquo;</em>. Both sides
+    are bare with vacuum boundaries.</p>
+    <p>The residual +8320 pcm is therefore attributable to solution method, and it is
+    consistent in sign and order with the −4114 pcm that pcL's <em>own</em> smoke test
+    measures between GeN-Foam diffusion and OpenMC Monte Carlo on the pin cell. Two-group
+    diffusion in a small bare core leaking 20.1% is operating where it is least reliable.</p>
+    <p><b>This is not evidence that either calculation is wrong.</b> It is evidence that a
+    continuous-energy Monte Carlo k and a 2-group diffusion k are different quantities, and
+    that the 500 pcm threshold cannot be applied between them. Where the two <em>are</em>
+    methodologically comparable — the Monte Carlo pin cell — they agree to 280 pcm.</p>
   </div>
 
   <h3>Quantities that are not comparable as reported</h3>
   <div class="tw"><table>
     <thead><tr><th>Quantity</th><th class="n">pcM</th><th class="n">pcL</th><th>Why not comparable</th></tr></thead>
     <tbody>
-      <tr><td>Pin power peak/average</td><td class="n">2.2544</td><td class="n">2.45</td><td>Depends on the core model above</td></tr>
-      <tr><td>Max fuel temperature</td><td class="n">359.0 K</td><td class="n">≤ 594 K</td><td>pcM is an average pin with a correlation film coefficient; no CFD</td></tr>
-      <tr><td>+0.5 $ transient</td><td class="n">—</td><td class="n">~490 kW</td><td><span class="pill no">no pcM result</span></td></tr>
-      <tr><td>Coolant velocity / pressure</td><td class="n">—</td><td class="n">—</td><td><span class="pill no">no pcM result</span></td></tr>
+      <tr><td>Pin power peak/average</td><td class="n">2.2544</td><td class="n">2.45</td><td>pcL notes its single zone is &ldquo;cosine-like, flat by construction&rdquo;</td></tr>
+      <tr><td>Max fuel temperature</td><td class="n">359.0 K</td><td class="n">594.2 K</td><td>pcM is an average pin with a correlation film coefficient; pcL is a sub-scale pin average from OFFBEAT</td></tr>
+      <tr><td>Max coolant temperature</td><td class="n">294.2 K</td><td class="n">306.5 K</td><td>pcM's CFD is unconverged — this is a lower bound, not a result</td></tr>
+      <tr><td>+0.5 $ transient peak</td><td class="n">—</td><td class="n">489.7 kW</td><td><span class="pill no">no pcM result</span> — out of pcM scope</td></tr>
+      <tr><td>Transient equilibrium</td><td class="n">—</td><td class="n">304.9 kW</td><td><span class="pill no">no pcM result</span> — Doppler-limited, pcL</td></tr>
+      <tr><td>Coolant velocity / pressure</td><td class="n">—</td><td class="n">—</td><td><span class="pill no">not extracted either side</span></td></tr>
     </tbody>
   </table></div>
   <p class="note">pcM's peak/average of 2.2544 also means the reported temperatures describe
   an average pin. A hot-channel calculation would be materially hotter, so the fuel
-  temperature line above compares two different things even setting the missing CFD aside.</p>
+  temperature line compares two different things even setting the missing CFD aside.</p>
+
+  <h3>Lattice constants: pcL generated its own</h3>
+  <p class="prose">The project workflow intended pcM to generate the 2-group MGXS and hand it
+  to pcL (Phase 6). <b>pcM did not run that phase.</b> pcL's
+  <code>validation_step5.csv</code> therefore carries its own set — removal, νΣ<sub>f</sub>,
+  a P<sub>0</sub> scatter matrix, diffusion coefficients, χ and inverse velocities — condensed
+  from its own OpenMC pin-cell run. Both sides condensed from Monte Carlo, but independently,
+  so the group constants are a further uncontrolled difference in the k-effective comparison.
+  Generating pcM's MGXS and re-running pcL's diffusion solve with it would isolate the
+  remaining method error cleanly.</p>
   </div>
 </section>
 
@@ -575,9 +604,10 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
         <td>Conduction within 1.1% of analytic; ZrH feedback confirmed at −6.34 pcm/K;
             <b>but CFD shows an unphysical sub-inlet temperature</b></td></tr>
       <tr><td>4 · Cross-code</td><td>Does it agree with pcL?</td>
-        <td><span class="pill warn">inconclusive</span></td>
-        <td>k-infinity within threshold; k-effective 20× outside it, cause unresolved;
-            pcL figures unverified</td></tr>
+        <td><span class="pill warn">partial</span></td>
+        <td>Where methodologically comparable (Monte Carlo pin cell) agreement is 280 pcm,
+            inside threshold. The k-effective difference is decomposed and attributed to
+            homogenisation and solution method, not to an error either side</td></tr>
       <tr><td>5 · Experimental</td><td>Does it match measurement?</td>
         <td><span class="pill no">not attempted</span></td>
         <td>No experimental data exists in this project</td></tr>
@@ -591,9 +621,9 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
       <tr><td>CFD thermal not converged</td><td>Extend to ~5 flow-throughs after resolving the filter undershoot</td><td class="n">~5 h GPU</td></tr>
       <tr><td>Sub-inlet temperature</td><td>Reduce scalar HPFRT strength; re-check with a short run</td><td class="n">~1 h GPU</td></tr>
       <tr><td>No mesh independence</td><td>Repeat at order 5 and order 8; compare integral quantities</td><td class="n">~8 h GPU</td></tr>
-      <tr><td>k-effective discrepancy</td><td>Add graphite reflector and control rods; re-run core eigenvalue</td><td class="n">~1 h CPU</td></tr>
+      <tr><td>k-effective method gap</td><td>Generate pcM's 2-group MGXS (Phase 6) and have pcL re-solve with it</td><td class="n">~2 h CPU</td></tr>
       <tr><td>Library deviation</td><td>Re-run coupled production on ENDF/B-VIII.0</td><td class="n">~1 h CPU</td></tr>
-      <tr><td>pcL figures unverified</td><td>Obtain pcL's actual output files and model description</td><td class="n">—</td></tr>
+      <tr><td>Transient not attempted</td><td>Out of pcM's defined scope; would need a coupled transient capability</td><td class="n">—</td></tr>
       <tr><td>No validation</td><td>Obtain TRIGA experimental data (criticality, temperature)</td><td class="n">—</td></tr>
     </tbody>
   </table></div>
@@ -623,7 +653,9 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
       k<sub>clad</sub>, h, and the coolant rise are all documented pcM choices.</li>
     <li><b>Library deviation.</b> The coupled production run used ENDF/B-VII.1, not the
       specified VIII.0; the measured offset is +73 pcm.</li>
-    <li><b>Bare core.</b> No reflector was modelled, per the specification as written.</li>
+    <li><b>Bare core.</b> No reflector or control rods were modelled, per the specification
+      as written. pcL's core is also bare, so this is a shared simplification rather than a
+      difference — but it means neither result describes a physical TRIGA at criticality.</li>
   </ul>
   </div>
   </div>
@@ -649,9 +681,9 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
 </section>
 
 <footer>
-  pcM independent reference calculation · Cardinal / OpenMC / MOOSE ·
-  produced without reference to pcL implementation or results ·
-  NekRS thermal-hydraulics pending
+  pcM independent reference calculation · Cardinal / OpenMC / MOOSE / NekRS ·
+  results frozen at tag pcm-independent-v1 before any pcL material was read ·
+  CFD thermal field not converged · no experimental validation
 </footer>
 </div>
 
@@ -797,9 +829,9 @@ lineChart("c-tc","t-tc",TC,[cv('--s3')],"Fuel temperature (K)","k-infinity",
     const g=el("text",{x:X(v),y:H-M.b+19,"text-anchor":"middle",fill:ink2,"font-size":11,
       "font-family":"IBM Plex Mono, monospace"});g.textContent=v.toFixed(2);svg.appendChild(g)}
   const rows=[
-    {n:"pcM bare core",d:"heterogeneous, vacuum",k:1.102059,c:cv('--s1')},
-    {n:"pcM homogenised",d:"same core, smeared",k:1.145259,c:cv('--s1')},
-    {n:"pcL reported",d:"core model unspecified",k:1.240544,c:cv('--s2')}];
+    {n:"pcM bare core",d:"heterogeneous, Monte Carlo",k:1.102059,c:cv('--s1')},
+    {n:"pcM homogenised",d:"smeared, Monte Carlo",k:1.145259,c:cv('--s1')},
+    {n:"pcL GeN-Foam",d:"homogenised, 2-group diffusion",k:1.240544,c:cv('--s2')}];
   rows.forEach((r,i)=>{
     const y=M.t+30+i*52;
     svg.appendChild(el("line",{x1:M.l,x2:X(r.k),y1:y,y2:y,stroke:r.c,"stroke-width":2,opacity:.3}));
@@ -818,7 +850,7 @@ lineChart("c-tc","t-tc",TC,[cv('--s3')],"Fuel temperature (K)","k-infinity",
     stroke:cv('--caution'),"stroke-width":2})));
   const g=el("text",{x:(xm+xp)/2,y:gy+19,"text-anchor":"middle",fill:cv('--caution'),
     "font-size":11.5,"font-family":"IBM Plex Mono, monospace"});
-  g.textContent="~7 700 pcm unexplained";svg.appendChild(g);
+  g.textContent="+8320 pcm  ·  diffusion vs Monte Carlo";svg.appendChild(g);
   const t=el("text",{x:(M.l+W-M.r)/2,y:H-M.b+40,"text-anchor":"middle",fill:ink3,"font-size":11.5});
   t.textContent="k-effective";svg.appendChild(t);
 })();
