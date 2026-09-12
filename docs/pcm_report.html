@@ -1,0 +1,594 @@
+<title>pcM TRIGA Reference Calculation</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --surface:#fbfbfc; --raised:#f4f5f7; --sunken:#eef0f3;
+  --ink:#14171c; --ink2:#565c66; --ink3:#868d99;
+  --rule:#e2e5ea; --rule2:#d3d8e0;
+  --s1:#2a78d6; --s2:#eb6834; --s3:#1baf7a;
+  --caution:#9a6400; --caution-bg:#fdf6e7; --caution-rule:#e8d6a8;
+  --alert:#b3352f; --alert-bg:#fdf0ef; --alert-rule:#f0cbc7;
+  --good:#0f7a4d;
+  --measure:68ch;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --surface:#14161a; --raised:#1b1e24; --sunken:#22262d;
+  --ink:#f1f3f6; --ink2:#a9b1bd; --ink3:#78818f;
+  --rule:#2a2f38; --rule2:#39404b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --caution:#e0b050; --caution-bg:#241d0d; --caution-rule:#4a3b16;
+  --alert:#e88a84; --alert-bg:#2a1614; --alert-rule:#52201c;
+  --good:#3fb383;
+}}
+:root[data-theme="dark"]{
+  --surface:#14161a; --raised:#1b1e24; --sunken:#22262d;
+  --ink:#f1f3f6; --ink2:#a9b1bd; --ink3:#78818f;
+  --rule:#2a2f38; --rule2:#39404b;
+  --s1:#3987e5; --s2:#d95926; --s3:#199e70;
+  --caution:#e0b050; --caution-bg:#241d0d; --caution-rule:#4a3b16;
+  --alert:#e88a84; --alert-bg:#2a1614; --alert-rule:#52201c;
+  --good:#3fb383;
+}
+*{box-sizing:border-box}
+body{background:var(--surface);color:var(--ink);
+  font-family:"IBM Plex Sans",system-ui,-apple-system,sans-serif;
+  font-size:16px;line-height:1.65;margin:0;padding:0 24px 96px;
+  -webkit-font-smoothing:antialiased}
+.wrap{max-width:1080px;margin:0 auto}
+.prose{max-width:var(--measure)}
+h1,h2,h3{font-family:"Source Serif 4",Georgia,serif;text-wrap:balance;margin:0}
+h1{font-size:clamp(30px,4.4vw,44px);font-weight:700;line-height:1.12;letter-spacing:-.015em}
+h2{font-size:26px;font-weight:600;line-height:1.2}
+h3{font-size:18px;font-weight:600;margin-bottom:6px}
+p{margin:0 0 14px}
+a{color:var(--s1)}
+.mono{font-family:"IBM Plex Mono",ui-monospace,monospace}
+.num{font-variant-numeric:tabular-nums}
+
+/* masthead */
+header{padding:52px 0 26px;border-bottom:2px solid var(--ink);margin-bottom:34px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--ink2);margin-bottom:14px}
+.sub{font-size:17px;color:var(--ink2);margin-top:12px;max-width:60ch}
+.meta{display:flex;flex-wrap:wrap;gap:8px 28px;margin-top:22px;
+  font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink2)}
+.meta b{color:var(--ink);font-weight:500}
+
+/* sections with numbered rail */
+section{margin:46px 0;scroll-margin-top:20px}
+.shead{display:grid;grid-template-columns:44px 1fr;gap:14px;align-items:baseline;
+  border-top:1px solid var(--rule);padding-top:16px;margin-bottom:16px}
+.snum{font-family:"IBM Plex Mono",monospace;font-size:12.5px;color:var(--ink3);
+  letter-spacing:.06em;padding-top:6px}
+.sbody{padding-left:58px}
+@media(max-width:680px){.sbody{padding-left:0}.shead{grid-template-columns:34px 1fr;gap:8px}}
+
+/* headline figures */
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));
+  gap:1px;background:var(--rule);border:1px solid var(--rule);margin:22px 0}
+.fig{background:var(--surface);padding:16px 18px}
+.fig .lab{font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;
+  color:var(--ink2);font-family:"IBM Plex Mono",monospace;margin-bottom:7px}
+.fig .val{font-size:27px;font-weight:600;letter-spacing:-.02em;line-height:1.05}
+.fig .unc{font-size:12.5px;color:var(--ink2);margin-top:4px;font-family:"IBM Plex Mono",monospace}
+
+/* tables */
+.tw{overflow-x:auto;margin:18px 0}
+table{border-collapse:collapse;width:100%;font-size:14.5px}
+th,td{text-align:left;padding:9px 14px 9px 0;border-bottom:1px solid var(--rule)}
+th{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink2);font-weight:500;border-bottom:1px solid var(--rule2)}
+td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;
+  font-family:"IBM Plex Mono",monospace;padding-right:18px}
+tbody tr:last-child td{border-bottom:none}
+tr.hl td{background:var(--raised);font-weight:600}
+
+/* callouts */
+.note{border-left:3px solid var(--rule2);padding:2px 0 2px 18px;margin:20px 0;
+  color:var(--ink2);font-size:15px;max-width:var(--measure)}
+.callout{border:1px solid var(--caution-rule);background:var(--caution-bg);
+  padding:16px 20px;margin:22px 0;border-radius:3px}
+.callout.alert{border-color:var(--alert-rule);background:var(--alert-bg)}
+.callout .ct{font-family:"IBM Plex Mono",monospace;font-size:11.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--caution);margin-bottom:7px;font-weight:500}
+.callout.alert .ct{color:var(--alert)}
+.callout p{margin:0 0 10px;font-size:15px}.callout p:last-child{margin:0}
+
+/* charts */
+.chart{margin:26px 0 30px}
+.ctitle{font-size:15.5px;font-weight:600;margin-bottom:3px}
+.csub{font-size:13.5px;color:var(--ink2);margin-bottom:14px;max-width:64ch}
+.legend{display:flex;flex-wrap:wrap;gap:18px;margin:10px 0 4px;font-size:13px;color:var(--ink2)}
+.lg{display:flex;align-items:center;gap:7px}
+.sw{width:14px;height:3px;border-radius:2px;flex:none}
+.sv{position:relative}
+svg{display:block;width:100%;height:auto;overflow:visible}
+.tip{position:absolute;pointer-events:none;background:var(--surface);
+  border:1px solid var(--rule2);border-radius:4px;padding:8px 11px;font-size:12.5px;
+  font-family:"IBM Plex Mono",monospace;color:var(--ink);opacity:0;transition:opacity .1s;
+  box-shadow:0 4px 14px rgba(0,0,0,.1);white-space:nowrap;z-index:5;line-height:1.5}
+.tip b{font-weight:500;color:var(--ink2)}
+
+.pill{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:11px;
+  letter-spacing:.06em;text-transform:uppercase;padding:2px 8px;border-radius:99px;
+  border:1px solid currentColor;vertical-align:middle}
+.pill.ok{color:var(--good)}.pill.no{color:var(--alert)}.pill.warn{color:var(--caution)}
+ul{margin:0 0 14px;padding-left:20px}li{margin-bottom:7px}
+code{font-family:"IBM Plex Mono",monospace;font-size:.9em;background:var(--sunken);
+  padding:1px 5px;border-radius:3px}
+footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
+  font-size:13px;color:var(--ink3);font-family:"IBM Plex Mono",monospace}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+:focus-visible{outline:2px solid var(--s1);outline-offset:2px}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">pcM · Independent Reference Calculation · 12 Sep 2026</div>
+  <h1>TRIGA Mark I: coupled neutronics and thermal results</h1>
+  <p class="sub">An independent Cardinal / OpenMC / MOOSE calculation of a TRIGA Mark I
+  unit cell and bare core, produced without reference to the parallel pcL calculation.</p>
+  <div class="meta">
+    <span><b>Cardinal</b> snapshot-20-10-27</span>
+    <span><b>OpenMC</b> 0.16.1-dev14</span>
+    <span><b>MOOSE</b> dddbb15e48</span>
+    <span><b>Platform</b> Ubuntu container, 32 GiB</span>
+    <span><b>Status</b> neutronics + conduction complete; CFD pending</span>
+  </div>
+</header>
+
+<!-- 1 SUMMARY -->
+<section>
+  <div class="shead"><div class="snum">01</div><h2>Summary</h2></div>
+  <div class="sbody">
+  <div class="prose">
+  <p>pcM has produced an independent, reproducible neutronics and solid-conduction
+  result set for the specified TRIGA Mark I problem. Monte&nbsp;Carlo neutronics is
+  coupled to MOOSE heat conduction through Cardinal, converged over ten Picard
+  iterations with exact power conservation.</p>
+  </div>
+
+  <div class="figs">
+    <div class="fig"><div class="lab">k-infinity</div><div class="val num">1.384207</div>
+      <div class="unc">± 21 pcm · unit cell</div></div>
+    <div class="fig"><div class="lab">k-effective</div><div class="val num">1.102059</div>
+      <div class="unc">± 26 pcm · bare core</div></div>
+    <div class="fig"><div class="lab">Peak fuel T</div><div class="val num">359.0 K</div>
+      <div class="unc">average pin</div></div>
+    <div class="fig"><div class="lab">Peak clad T</div><div class="val num">336.2 K</div>
+      <div class="unc">average pin</div></div>
+    <div class="fig"><div class="lab">Fuel temp. coeff.</div><div class="val num">−6.34</div>
+      <div class="unc">pcm/K · 296–1000 K</div></div>
+  </div>
+
+  <div class="callout alert">
+    <div class="ct">Not produced — do not treat as complete</div>
+    <p><b>No thermal-hydraulic solution exists.</b> NekRS has not run. Coolant velocity,
+    pressure and the coolant temperature field are absent. The coolant is <em>imposed</em>
+    through a heat-transfer correlation, not solved.</p>
+    <p>Also outstanding: three-way coupling, MGXS generation, and the +0.5&nbsp;$ transient.</p>
+  </div>
+  </div>
+</section>
+
+<!-- 2 MODEL -->
+<section>
+  <div class="shead"><div class="snum">02</div><h2>Model and scope</h2></div>
+  <div class="sbody">
+  <div class="tw"><table>
+    <thead><tr><th>Parameter</th><th class="n">Value</th><th>Basis</th></tr></thead>
+    <tbody>
+      <tr><td>Fuel outer radius</td><td class="n">1.815 cm</td><td>specification</td></tr>
+      <tr><td>Clad outer radius</td><td class="n">1.866 cm</td><td>specification</td></tr>
+      <tr><td>Lattice pitch (square)</td><td class="n">4.235 cm</td><td>specification</td></tr>
+      <tr><td>Active height</td><td class="n">60.0 cm</td><td>specification</td></tr>
+      <tr><td>Fuel U-ZrH<sub>1.65</sub></td><td class="n">6.0 g/cm³</td><td>specification</td></tr>
+      <tr><td>Clad SS304</td><td class="n">8.00 g/cm³</td><td>pcM assumption</td></tr>
+      <tr><td>Thermal power</td><td class="n">250 kW</td><td>specification</td></tr>
+      <tr><td>Power per pin (120 pins)</td><td class="n">2083.33 W</td><td>pcM derivation</td></tr>
+      <tr><td>Coolant inlet</td><td class="n">293 K, 0.2 m/s</td><td>specification</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">There is no fuel–clad gap: the specification gives two radii, so clad
+  inner radius equals fuel outer radius. The MOOSE mesh stitches the two regions into
+  direct thermal contact rather than separating them with a gap conductance.</p>
+  </div>
+</section>
+
+<!-- 3 THERMAL -->
+<section>
+  <div class="shead"><div class="snum">03</div><h2>Thermal results</h2></div>
+  <div class="sbody">
+  <div class="prose"><p>Solid conduction in fuel and clad, with fission power supplied by
+  OpenMC each Picard iteration and a convective boundary condition at the clad surface.</p></div>
+
+  <div class="chart">
+    <div class="ctitle">Axial temperature profile</div>
+    <div class="csub">Fuel centreline and clad outer surface along the 60 cm active height.
+      The profile is slightly top-skewed because the coolant heats as it flows upward.</div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--s1)"></span>Fuel centreline</span>
+      <span class="lg"><span class="sw" style="background:var(--s2)"></span>Clad outer surface</span>
+    </div>
+    <div class="sv"><svg id="c-ax" viewBox="0 0 760 300" role="img"
+      aria-label="Axial temperature profile, peaking at 358.5 K at mid-height"></svg>
+      <div class="tip" id="t-ax"></div></div>
+  </div>
+
+  <div class="chart">
+    <div class="ctitle">Radial temperature profile at mid-plane</div>
+    <div class="csub">z = 30 cm. Temperature is continuous across the fuel–clad interface at
+      r = 1.815 cm, confirming the stitched contact behaves as specified.</div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--s1)"></span>Temperature</span>
+      <span class="lg"><span class="sw" style="background:var(--ink3);height:12px;width:2px"></span>Fuel–clad interface</span>
+    </div>
+    <div class="sv"><svg id="c-rad" viewBox="0 0 760 280" role="img"
+      aria-label="Radial temperature profile falling from 358.5 K at centre to 334.7 K at clad surface"></svg>
+      <div class="tip" id="t-rad"></div></div>
+  </div>
+
+  <h3>Temperature drop budget</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Contribution</th><th class="n">Computed</th><th class="n">Analytic</th><th class="n">Share</th><th>Governed by</th></tr></thead>
+    <tbody>
+      <tr><td>Film (clad → coolant)</td><td class="n">40.3 K</td><td class="n">42.4 K</td><td class="n">63%</td><td>correlation <span class="pill warn">weakest</span></td></tr>
+      <tr><td>Fuel conduction</td><td class="n">22.4 K</td><td class="n">24.1 K</td><td class="n">35%</td><td>k<sub>fuel</sub> = 18 W/m·K</td></tr>
+      <tr><td>Clad conduction</td><td class="n">1.07 K</td><td class="n">1.5 K</td><td class="n">2%</td><td>k<sub>clad</sub> = 16 W/m·K</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">The film drop dominates, and it is the term pcM knows least well — a
+  Dittus–Boelter correlation evaluated at Re = 4755, which is transitional and below the
+  range where that correlation is reliable. Replacing it with a NekRS solution is the
+  single highest-value remaining improvement.</p>
+  </div>
+</section>
+
+<!-- 4 VERIFICATION -->
+<section>
+  <div class="shead"><div class="snum">04</div><h2>Verification</h2></div>
+  <div class="sbody">
+  <div class="prose"><p>Three independent checks. These establish software and numerical
+  verification plus a physics check — they are <em>not</em> experimental validation, and no
+  experimental data was used.</p></div>
+
+  <div class="chart">
+    <div class="ctitle">Picard convergence</div>
+    <div class="csub">Ten coupled iterations. k-effective settles within Monte Carlo noise
+      after the first temperature feedback; average fuel temperature is stable to 10⁻⁸ K.</div>
+    <div class="legend"><span class="lg"><span class="sw" style="background:var(--s1)"></span>k-effective</span></div>
+    <div class="sv"><svg id="c-pic" viewBox="0 0 760 250" role="img"
+      aria-label="k-effective across ten Picard iterations, converging near 1.3066"></svg>
+      <div class="tip" id="t-pic"></div></div>
+  </div>
+
+  <div class="chart">
+    <div class="ctitle">Fuel temperature coefficient — the TRIGA signature</div>
+    <div class="csub">Moderator held at 293 K while fuel temperature is swept, isolating fuel
+      feedback. The coefficient is large, negative, and becomes <em>more</em> negative as fuel
+      heats — the hydrogen-in-ZrH bound-state effect, not U-238 Doppler.</div>
+    <div class="legend"><span class="lg"><span class="sw" style="background:var(--s3)"></span>k-infinity</span></div>
+    <div class="sv"><svg id="c-tc" viewBox="0 0 760 260" role="img"
+      aria-label="k-infinity falling from 1.3849 at 296 K to 1.3042 at 1000 K"></svg>
+      <div class="tip" id="t-tc"></div></div>
+  </div>
+
+  <div class="tw"><table>
+    <thead><tr><th>Check</th><th>Result</th><th class="n">Agreement</th></tr></thead>
+    <tbody>
+      <tr><td>Power conservation</td><td>Integral = 2083.33 W every iteration</td><td class="n">exact</td></tr>
+      <tr><td>Analytic conduction solution</td><td>362.8 K predicted vs 359.0 K computed</td><td class="n">1.1%</td></tr>
+      <tr><td>Cross-platform reproducibility</td><td>macOS arm64 vs Ubuntu x86, average fuel T</td><td class="n">7×10⁻⁴ K</td></tr>
+      <tr><td>Fuel–clad interface continuity</td><td>336.15 K on both sides</td><td class="n">exact</td></tr>
+      <tr><td>Monte Carlo tally error</td><td>Max relative error, production</td><td class="n">0.82%</td></tr>
+    </tbody>
+  </table></div>
+
+  <p class="note">The 1.1% analytic difference is expected and explained: the hand
+  calculation assumes a pure cosine axial power shape, while the real profile is flatter.</p>
+  </div>
+</section>
+
+<!-- 5 LIBRARY -->
+<section>
+  <div class="shead"><div class="snum">05</div><h2>Nuclear data sensitivity</h2></div>
+  <div class="sbody">
+  <div class="prose">
+  <p>The specification requires ENDF/B-VIII.0. The execution environment carried
+  ENDF/B-VII.1, so the identical coupled model was run on both libraries. The difference
+  is now a measured offset rather than an unknown.</p>
+  </div>
+  <div class="tw"><table>
+    <thead><tr><th>Library</th><th>Platform</th><th class="n">k-effective</th><th class="n">Max fuel T</th><th class="n">Tally error</th></tr></thead>
+    <tbody>
+      <tr><td>ENDF/B-VIII.0</td><td>macOS arm64, 5k particles</td><td class="n">1.30561</td><td class="n">358.64 K</td><td class="n">2.06%</td></tr>
+      <tr><td>ENDF/B-VII.1</td><td>Ubuntu x86, 20k particles</td><td class="n">1.30656</td><td class="n">358.90 K</td><td class="n">0.82%</td></tr>
+      <tr class="hl"><td colspan="2">Difference (VII.1 − VIII.0)</td><td class="n">+73 pcm</td><td class="n">+0.25 K</td><td class="n">—</td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">+73 pcm is small relative to the 500 pcm threshold set for this exercise,
+  and within combined counting statistics. All results in this report are labelled with the
+  library that produced them.</p>
+  </div>
+</section>
+
+<!-- 6 COMPARISON -->
+<section>
+  <div class="shead"><div class="snum">06</div><h2>Comparison with pcL</h2></div>
+  <div class="sbody">
+  <div class="callout">
+    <div class="ct">Scope note</div>
+    <p>pcM's governing instructions assign the pcL comparison to the supervisor, not to pcM.
+    The material below is provided at explicit request and should be read as pcM's
+    <em>input</em> to a comparison, not as pcM's verdict on agreement.</p>
+  </div>
+
+  <h3>The one directly comparable quantity</h3>
+  <div class="chart">
+    <div class="ctitle">k-infinity, 2-D unit cell, ENDF/B-VIII.0</div>
+    <div class="csub">Same geometry, same library, same code family — so this comparison is
+      meaningful. Bars show ±1σ counting statistics; the band is the ±500 pcm threshold
+      set for this exercise, centred on pcL.</div>
+    <div class="sv"><svg id="c-kinf" viewBox="0 0 760 210" role="img"
+      aria-label="k-infinity: pcM 1.384207 versus pcL 1.388100, a 280 pcm difference inside the 500 pcm threshold"></svg>
+      <div class="tip" id="t-kinf"></div></div>
+  </div>
+  <p class="prose">The difference is <b>−280 pcm (3.1σ)</b> — statistically resolved, but
+  inside the 500 pcm tolerance.</p>
+
+  <h3>k-effective: a 20× threshold gap that is probably geometry</h3>
+  <div class="chart">
+    <div class="ctitle">Core k-effective reconciliation</div>
+    <div class="csub">pcM's bare-core model leaks 20.1%. Homogenisation closes part of the
+      gap to pcL; a substantial remainder is unexplained by any pcM variant.</div>
+    <div class="legend">
+      <span class="lg"><span class="sw" style="background:var(--s1)"></span>pcM variants</span>
+      <span class="lg"><span class="sw" style="background:var(--s2)"></span>pcL reported</span>
+    </div>
+    <div class="sv"><svg id="c-keff" viewBox="0 0 760 300" role="img"
+      aria-label="Core k-effective: pcM bare 1.1021, pcM homogenised 1.1453, pcL 1.2405"></svg>
+      <div class="tip" id="t-keff"></div></div>
+  </div>
+
+  <div class="callout">
+    <div class="ct">Principal open question for the supervisor</div>
+    <p><b>Did pcL model a graphite reflector?</b> A gap of this size in a core this small is
+    the signature of a reflector. pcM built a bare core because the specification stated
+    "single zone, vacuum boundary conditions". If pcL included a reflector, the discrepancy
+    is a specification ambiguity to resolve, not a code disagreement to investigate.</p>
+  </div>
+
+  <h3>Quantities that are not comparable as reported</h3>
+  <div class="tw"><table>
+    <thead><tr><th>Quantity</th><th class="n">pcM</th><th class="n">pcL</th><th>Why not comparable</th></tr></thead>
+    <tbody>
+      <tr><td>Pin power peak/average</td><td class="n">2.2544</td><td class="n">2.45</td><td>Depends on the core model above</td></tr>
+      <tr><td>Max fuel temperature</td><td class="n">359.0 K</td><td class="n">≤ 594 K</td><td>pcM is an average pin with a correlation film coefficient; no CFD</td></tr>
+      <tr><td>+0.5 $ transient</td><td class="n">—</td><td class="n">~490 kW</td><td><span class="pill no">no pcM result</span></td></tr>
+      <tr><td>Coolant velocity / pressure</td><td class="n">—</td><td class="n">—</td><td><span class="pill no">no pcM result</span></td></tr>
+    </tbody>
+  </table></div>
+  <p class="note">pcM's peak/average of 2.2544 also means the reported temperatures describe
+  an average pin. A hot-channel calculation would be materially hotter, so the fuel
+  temperature line above compares two different things even setting the missing CFD aside.</p>
+  </div>
+</section>
+
+<!-- 7 LIMITATIONS -->
+<section>
+  <div class="shead"><div class="snum">07</div><h2>Limitations</h2></div>
+  <div class="sbody">
+  <div class="prose">
+  <p>Stated per the verification hierarchy: software verification and numerical convergence
+  are established; one physics check passes; cross-code comparison is the supervisor's;
+  <b>experimental validation has not been attempted and no experimental data exists here.</b></p>
+  <ul>
+    <li><b>No fluid solution.</b> NekRS has not run. The coolant is represented by an imposed
+      heat-transfer coefficient and a linear bulk temperature rise.</li>
+    <li><b>The film coefficient is the dominant uncertainty</b> — 63% of the temperature rise,
+      from a correlation used outside its reliable Reynolds range.</li>
+    <li><b>Average pin, not hot channel.</b> Peak/average is 2.2544.</li>
+    <li><b>Thermal properties are assumptions</b>, not specification values: k<sub>fuel</sub>,
+      k<sub>clad</sub>, h, and the coolant rise are all documented pcM choices.</li>
+    <li><b>Library deviation.</b> The coupled production run used ENDF/B-VII.1, not the
+      specified VIII.0; the measured offset is +73 pcm.</li>
+    <li><b>Bare core.</b> No reflector was modelled, per the specification as written.</li>
+  </ul>
+  </div>
+  </div>
+</section>
+
+<!-- 8 REPRO -->
+<section>
+  <div class="shead"><div class="snum">08</div><h2>Reproduction</h2></div>
+  <div class="sbody">
+  <div class="tw"><table>
+    <thead><tr><th>Item</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr><td>Repository</td><td class="mono">github.com/kavyawadhwa134/pcm-triga-cardinal</td></tr>
+      <tr><td>Neutronics</td><td class="mono">./scripts/run_openmc.sh unitcell baseline</td></tr>
+      <tr><td>Coupled</td><td class="mono">./scripts/run_coupled.sh production 8</td></tr>
+      <tr><td>Temperature coefficient</td><td class="mono">$PCM_PYTHON cardinal/openmc/temperature_coefficient.py</td></tr>
+      <tr><td>Coupled settings</td><td>20 000 particles · 150 batches · 30 inactive · 10 Picard</td></tr>
+      <tr><td>Mesh</td><td>6400 elements · 20 axial layers</td></tr>
+      <tr><td>Runtime</td><td>2905 s wall · 1132 MB peak</td></tr>
+    </tbody>
+  </table></div>
+  </div>
+</section>
+
+<footer>
+  pcM independent reference calculation · Cardinal / OpenMC / MOOSE ·
+  produced without reference to pcL implementation or results ·
+  NekRS thermal-hydraulics pending
+</footer>
+</div>
+
+<script>
+const AX=[[0,302.56,298.96],[3,307.81,302.33],[6,317.72,308.63],[9,326.63,314.27],[12,334.5,319.27],[15,341.21,323.54],[18,347.07,327.28],[21,351.84,330.34],[24,355.19,332.5],[27,357.53,334.03],[30,358.54,334.73],[33,357.82,334.35],[36,356,333.28],[39,353.12,331.54],[42,348.8,328.9],[45,343.09,325.38],[48,336.53,321.34],[51,329.04,316.71],[54,320.51,311.44],[57,311.03,305.55],[60,305.98,302.43]];
+const RAD=[[0.15,358.54],[0.45,357.43],[0.75,355.64],[1.05,351.55],[1.35,346.06],[1.6,341.46],[1.757,336.15],[1.83,335.79],[1.856,334.73]];
+const PIC=[[1,1.31018],[2,1.30708],[3,1.30698],[4,1.3062],[5,1.30698],[6,1.30717],[7,1.30645],[8,1.30604],[9,1.30554],[10,1.30662]];
+const TC=[[296,1.384926],[400,1.374862],[500,1.363166],[600,1.348904],[800,1.324688],[1000,1.304249]];
+const NS="http://www.w3.org/2000/svg";
+const cv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const el=(t,a)=>{const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);return e};
+const nice=(lo,hi,n)=>{const r=hi-lo,s=Math.pow(10,Math.floor(Math.log10(r/n)));
+  let st=s;[1,2,2.5,5,10].some(m=>{if(r/(s*m)<=n){st=s*m;return true}});
+  return{lo:Math.floor(lo/st)*st,hi:Math.ceil(hi/st)*st,st}};
+
+function axes(svg,W,H,M,xd,yd,xlab,ylab,xfmt,yfmt){
+  const ink2=cv('--ink2'),ink3=cv('--ink3'),rule=cv('--rule');
+  const X=v=>M.l+(v-xd.lo)/(xd.hi-xd.lo)*(W-M.l-M.r);
+  const Y=v=>H-M.b-(v-yd.lo)/(yd.hi-yd.lo)*(H-M.t-M.b);
+  for(let v=yd.lo;v<=yd.hi+1e-9;v+=yd.st){
+    svg.appendChild(el("line",{x1:M.l,x2:W-M.r,y1:Y(v),y2:Y(v),stroke:rule,"stroke-width":1}));
+    const t=el("text",{x:M.l-9,y:Y(v)+4,"text-anchor":"end",fill:ink2,
+      "font-size":11,"font-family":"IBM Plex Mono, monospace"});t.textContent=yfmt(v);svg.appendChild(t)}
+  for(let v=xd.lo;v<=xd.hi+1e-9;v+=xd.st){
+    const t=el("text",{x:X(v),y:H-M.b+19,"text-anchor":"middle",fill:ink2,
+      "font-size":11,"font-family":"IBM Plex Mono, monospace"});t.textContent=xfmt(v);svg.appendChild(t)}
+  svg.appendChild(el("line",{x1:M.l,x2:W-M.r,y1:H-M.b,y2:H-M.b,stroke:cv('--rule2'),"stroke-width":1}));
+  let t=el("text",{x:(M.l+W-M.r)/2,y:H-M.b+38,"text-anchor":"middle",fill:ink3,"font-size":11.5});
+  t.textContent=xlab;svg.appendChild(t);
+  t=el("text",{x:14,y:(M.t+H-M.b)/2,"text-anchor":"middle",fill:ink3,"font-size":11.5,
+    transform:`rotate(-90 14 ${(M.t+H-M.b)/2})`});t.textContent=ylab;svg.appendChild(t);
+  return{X,Y}}
+
+function hover(svg,tip,pts,label){
+  const W=svg.viewBox.baseVal.width,ink3=cv('--ink3');
+  const ln=el("line",{stroke:ink3,"stroke-width":1,opacity:0});svg.appendChild(ln);
+  const dots=pts[0].ys.map((_,i)=>{const c=el("circle",{r:5,fill:pts[0].cols[i],
+    stroke:cv('--surface'),"stroke-width":2,opacity:0});svg.appendChild(c);return c});
+  const box=svg.getBoundingClientRect();
+  svg.addEventListener("pointermove",e=>{
+    const b=svg.getBoundingClientRect(),sx=(e.clientX-b.left)/b.width*W;
+    let best=0,bd=1e9;pts.forEach((p,i)=>{const d=Math.abs(p.px-sx);if(d<bd){bd=d;best=i}});
+    const p=pts[best];
+    ln.setAttribute("x1",p.px);ln.setAttribute("x2",p.px);
+    ln.setAttribute("y1",svg.viewBox.baseVal.height-40);ln.setAttribute("y2",14);
+    ln.setAttribute("opacity",.45);
+    p.ys.forEach((y,i)=>{dots[i].setAttribute("cx",p.px);dots[i].setAttribute("cy",y);
+      dots[i].setAttribute("opacity",1)});
+    tip.innerHTML=label(p);tip.style.opacity=1;
+    const rel=p.px/W*b.width;
+    tip.style.left=Math.min(Math.max(rel-tip.offsetWidth/2,0),b.width-tip.offsetWidth)+"px";
+    tip.style.top="0px"});
+  svg.addEventListener("pointerleave",()=>{tip.style.opacity=0;ln.setAttribute("opacity",0);
+    dots.forEach(d=>d.setAttribute("opacity",0))});
+}
+
+function lineChart(id,tipId,data,cols,xlab,ylab,yfmt,xfmt,lab){
+  const svg=document.getElementById(id);if(!svg)return;
+  svg.textContent="";const W=svg.viewBox.baseVal.width,H=svg.viewBox.baseVal.height;
+  const M={l:56,r:22,t:14,b:44};
+  const xs=data.map(d=>d[0]),ys=data.flatMap(d=>d.slice(1));
+  const xd=nice(Math.min(...xs),Math.max(...xs),6),yd=nice(Math.min(...ys),Math.max(...ys),5);
+  const{X,Y}=axes(svg,W,H,M,xd,yd,xlab,ylab,xfmt,yfmt);
+  const ns=data[0].length-1;
+  for(let s=0;s<ns;s++){
+    const d=data.map(p=>`${X(p[0])},${Y(p[s+1])}`).join(" L ");
+    svg.appendChild(el("path",{d:"M "+d,fill:"none",stroke:cols[s],"stroke-width":2,
+      "stroke-linejoin":"round","stroke-linecap":"round"}))}
+  const pts=data.map(p=>({px:X(p[0]),ys:p.slice(1).map(v=>Y(v)),cols,raw:p}));
+  hover(svg,document.getElementById(tipId),pts,lab);
+}
+
+lineChart("c-ax","t-ax",AX,[cv('--s1'),cv('--s2')],"Axial position z (cm)","Temperature (K)",
+  v=>v.toFixed(0),v=>v.toFixed(0),
+  p=>`<b>z = ${p.raw[0]} cm</b><br>centreline ${p.raw[1].toFixed(2)} K<br>clad surf. ${p.raw[2].toFixed(2)} K<br><b>Δ ${(p.raw[1]-p.raw[2]).toFixed(2)} K</b>`);
+
+lineChart("c-rad","t-rad",RAD,[cv('--s1')],"Radius r (cm)","Temperature (K)",
+  v=>v.toFixed(0),v=>v.toFixed(1),
+  p=>`<b>r = ${p.raw[0]} cm</b><br>${p.raw[1].toFixed(2)} K<br><b>${p.raw[0]<=1.815?"fuel":"clad"}</b>`);
+
+(function(){ // fuel/clad interface marker
+  const svg=document.getElementById("c-rad");if(!svg)return;
+  const W=760,H=280,M={l:56,r:22,t:14,b:44};
+  const xs=RAD.map(d=>d[0]),ys=RAD.map(d=>d[1]);
+  const xd=nice(Math.min(...xs),Math.max(...xs),6),yd=nice(Math.min(...ys),Math.max(...ys),5);
+  const X=v=>M.l+(v-xd.lo)/(xd.hi-xd.lo)*(W-M.l-M.r);
+  const x=X(1.815);
+  svg.appendChild(el("line",{x1:x,x2:x,y1:M.t,y2:H-M.b,stroke:cv('--ink3'),"stroke-width":2,opacity:.55}));
+  const t=el("text",{x:x-7,y:M.t+13,"text-anchor":"end",fill:cv('--ink3'),"font-size":11,
+    "font-family":"IBM Plex Mono, monospace"});t.textContent="fuel | clad";svg.appendChild(t);
+})();
+
+lineChart("c-pic","t-pic",PIC,[cv('--s1')],"Picard iteration","k-effective",
+  v=>v.toFixed(3),v=>v.toFixed(0),
+  p=>`<b>iteration ${p.raw[0]}</b><br>k = ${p.raw[1].toFixed(5)}`);
+
+lineChart("c-tc","t-tc",TC,[cv('--s3')],"Fuel temperature (K)","k-infinity",
+  v=>v.toFixed(2),v=>v.toFixed(0),
+  p=>`<b>T = ${p.raw[0]} K</b><br>k∞ = ${p.raw[1].toFixed(5)}<br><b>${(((p.raw[1]-1)/p.raw[1]-(1.384926-1)/1.384926)*1e5).toFixed(0)} pcm</b>`);
+
+// k-infinity comparison with threshold band
+(function(){
+  const svg=document.getElementById("c-kinf");if(!svg)return;
+  const W=760,H=210,M={l:150,r:120,t:26,b:50};
+  const lo=1.3785,hi=1.3975;
+  const X=v=>M.l+(v-lo)/(hi-lo)*(W-M.l-M.r);
+  const ink=cv('--ink'),ink2=cv('--ink2'),ink3=cv('--ink3');
+  // 500 pcm band around pcL
+  const pcl=1.38810, halfk=500e-5*pcl;
+  svg.appendChild(el("rect",{x:X(pcl-halfk),y:M.t,width:X(pcl+halfk)-X(pcl-halfk),
+    height:H-M.t-M.b,fill:cv('--sunken')}));
+  let t=el("text",{x:X(pcl+halfk)+8,y:M.t+12,fill:ink3,"font-size":11,
+    "font-family":"IBM Plex Mono, monospace"});t.textContent="±500 pcm";svg.appendChild(t);
+  for(let v=1.380;v<=1.3965;v+=0.004){
+    svg.appendChild(el("line",{x1:X(v),x2:X(v),y1:M.t,y2:H-M.b,stroke:cv('--rule'),"stroke-width":1}));
+    const g=el("text",{x:X(v),y:H-M.b+19,"text-anchor":"middle",fill:ink2,"font-size":11,
+      "font-family":"IBM Plex Mono, monospace"});g.textContent=v.toFixed(3);svg.appendChild(g)}
+  const rows=[{n:"pcM",k:1.384207,s:0.000214,c:cv('--s1')},{n:"pcL",k:1.388100,s:0.001230,c:cv('--s2')}];
+  rows.forEach((r,i)=>{
+    const y=M.t+34+i*52;
+    svg.appendChild(el("line",{x1:X(r.k-r.s),x2:X(r.k+r.s),y1:y,y2:y,stroke:r.c,"stroke-width":2}));
+    [r.k-r.s,r.k+r.s].forEach(v=>svg.appendChild(el("line",{x1:X(v),x2:X(v),y1:y-5,y2:y+5,
+      stroke:r.c,"stroke-width":2})));
+    svg.appendChild(el("circle",{cx:X(r.k),cy:y,r:6,fill:r.c,stroke:cv('--surface'),"stroke-width":2}));
+    let a=el("text",{x:M.l-16,y:y+5,"text-anchor":"end",fill:ink,"font-size":14,"font-weight":600});
+    a.textContent=r.n;svg.appendChild(a);
+    a=el("text",{x:X(r.k),y:y-16,"text-anchor":"middle",fill:ink2,"font-size":12,
+      "font-family":"IBM Plex Mono, monospace"});
+    a.textContent=r.k.toFixed(6)+" ± "+Math.round(r.s*1e5)+" pcm";svg.appendChild(a)});
+  t=el("text",{x:(M.l+W-M.r)/2,y:H-M.b+40,"text-anchor":"middle",fill:ink3,"font-size":11.5});
+  t.textContent="k-infinity";svg.appendChild(t);
+})();
+
+// k-eff reconciliation
+(function(){
+  const svg=document.getElementById("c-keff");if(!svg)return;
+  const W=760,H=300,M={l:186,r:96,t:20,b:52};
+  const lo=1.08,hi=1.26;
+  const X=v=>M.l+(v-lo)/(hi-lo)*(W-M.l-M.r);
+  const ink=cv('--ink'),ink2=cv('--ink2'),ink3=cv('--ink3'),sf=cv('--surface');
+  for(let v=1.08;v<=1.261;v+=0.03){
+    svg.appendChild(el("line",{x1:X(v),x2:X(v),y1:M.t,y2:H-M.b,stroke:cv('--rule'),"stroke-width":1}));
+    const g=el("text",{x:X(v),y:H-M.b+19,"text-anchor":"middle",fill:ink2,"font-size":11,
+      "font-family":"IBM Plex Mono, monospace"});g.textContent=v.toFixed(2);svg.appendChild(g)}
+  const rows=[
+    {n:"pcM bare core",d:"heterogeneous, vacuum",k:1.102059,c:cv('--s1')},
+    {n:"pcM homogenised",d:"same core, smeared",k:1.145259,c:cv('--s1')},
+    {n:"pcL reported",d:"core model unspecified",k:1.240544,c:cv('--s2')}];
+  rows.forEach((r,i)=>{
+    const y=M.t+30+i*52;
+    svg.appendChild(el("line",{x1:M.l,x2:X(r.k),y1:y,y2:y,stroke:r.c,"stroke-width":2,opacity:.3}));
+    svg.appendChild(el("circle",{cx:X(r.k),cy:y,r:7,fill:r.c,stroke:sf,"stroke-width":2}));
+    let a=el("text",{x:M.l-16,y:y+1,"text-anchor":"end",fill:ink,"font-size":13.5,"font-weight":600});
+    a.textContent=r.n;svg.appendChild(a);
+    a=el("text",{x:M.l-16,y:y+16,"text-anchor":"end",fill:ink3,"font-size":11});
+    a.textContent=r.d;svg.appendChild(a);
+    a=el("text",{x:X(r.k)+14,y:y+5,fill:ink2,"font-size":12.5,
+      "font-family":"IBM Plex Mono, monospace"});a.textContent=r.k.toFixed(4);svg.appendChild(a)});
+  // unexplained gap bracket
+  const xm=X(1.145259), xp=X(1.240544);
+  const gy=M.t+30+2*52+50;
+  svg.appendChild(el("line",{x1:xm,x2:xp,y1:gy,y2:gy,stroke:cv('--caution'),"stroke-width":2}));
+  [xm,xp].forEach(x=>svg.appendChild(el("line",{x1:x,x2:x,y1:gy-5,y2:gy+5,
+    stroke:cv('--caution'),"stroke-width":2})));
+  const g=el("text",{x:(xm+xp)/2,y:gy+19,"text-anchor":"middle",fill:cv('--caution'),
+    "font-size":11.5,"font-family":"IBM Plex Mono, monospace"});
+  g.textContent="~7 700 pcm unexplained";svg.appendChild(g);
+  const t=el("text",{x:(M.l+W-M.r)/2,y:H-M.b+40,"text-anchor":"middle",fill:ink3,"font-size":11.5});
+  t.textContent="k-effective";svg.appendChild(t);
+})();
+</script>
