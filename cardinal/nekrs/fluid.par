@@ -15,7 +15,18 @@
   backend = CPU
 
 [GENERAL]
-  polynomialOrder = 5
+  # polynomialOrder 7 matches Cardinal's tutorials/turbulence/les case, which
+  # targets Re = 5000 - close to this case's Re = 4755 - so the LES is
+  # resolved rather than merely demonstrative.
+  #
+  # Nek5000 allocates statically: ~854 arrays of (lx1^3 * lelt) doubles, where
+  # lx1 = polynomialOrder + 1 and lelt = elements per rank. At 2880 elements
+  # the TOTAL across ranks is set by polynomialOrder alone:
+  #     order 5 (lx1=6) ->  4.25 GB     order 7 (lx1=8) -> 10.07 GB
+  #     order 8 (lx1=9) -> 14.34 GB     order 9 (lx1=10) -> 19.68 GB
+  # Adding ranks lowers per-rank memory but NOT the total. Drop to 5 on a
+  # machine with less than ~16 GiB. See docs/RUNBOOK.md Part 6, Trap 1.
+  polynomialOrder = 7
   stopAt = numSteps
   numSteps = 2000
   dt = targetCFL=0.5 + initial=1e-3
