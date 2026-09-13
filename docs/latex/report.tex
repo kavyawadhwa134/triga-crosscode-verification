@@ -53,7 +53,7 @@ Monte Carlo reference (Cardinal).\par}
 \midrule
 Nuclear data & ENDF/B-VIII.0 (both); ENDF/B-VII.1 for the Cardinal coupled run\\
 Repository & \texttt{github.com/kavyawadhwa134/triga-markI-benchmark}\\
-Independence & Cardinal results frozen before the GeN-Foam case was read\\
+Independence & Cardinal results frozen under git tag before the GeN-Foam case was read\\
 \bottomrule
 \end{tabular}
 \vfill
@@ -405,6 +405,32 @@ and a heated wall. With no heat sink this cannot be physical. It is an undershoo
 high-pass filter stabilisation and it does not decay.
 \end{callout}
 
+
+\subsection{Nuclear data sensitivity}
+The specification requires ENDF/B-VIII.0. The execution environment for the coupled run
+carried ENDF/B-VII.1, so the identical coupled model was run on both libraries and the
+difference recorded as a measured offset rather than left as an unknown.
+
+\begin{table}[H]\centering\small
+\caption{Library sensitivity of the coupled Cardinal model.}
+\begin{tabular}{@{}llrrr@{}}
+\toprule
+\textbf{Library} & \textbf{Platform} & \textbf{\keff} & \textbf{Max fuel $T$} & \textbf{Tally error}\\
+\midrule
+ENDF/B-VIII.0 & macOS arm64, 5k particles & 1.30561 & \SI{358.64}{\kelvin} & 2.06\%\\
+ENDF/B-VII.1 & Ubuntu x86, 20k particles & 1.30656 & \SI{358.90}{\kelvin} & 0.82\%\\
+\midrule
+\rowcolor{rowbg}
+Difference & VII.1 $-$ VIII.0 & $+73$\pcm & $+\SI{0.25}{\kelvin}$ & ---\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\SI{73}{}\pcm{} is small relative to the acceptance criterion and within combined counting
+statistics. The same comparison also demonstrates \textbf{cross-platform reproducibility}:
+average fuel temperature agrees to \SI{7e-4}{\kelvin} between macOS~arm64 and Ubuntu~x86,
+across different libraries and different particle budgets.
+
 \newpage
 %======================================================================
 \section{Comparison}\label{sec:comp}
@@ -594,6 +620,117 @@ simplification. Here both share a bare-core model with no reflector and no contr
 \end{tabular}
 \end{table}
 
+
+\newpage
+%======================================================================
+\section{Limitations}
+\begin{table}[H]\centering\small
+\caption{Limitations of the present study, with their consequence for interpretation.}
+\begin{tabular}{@{}p{48mm}p{88mm}@{}}
+\toprule
+\textbf{Limitation} & \textbf{Consequence}\\
+\midrule
+Both cores are bare & Neither model includes a reflector or control rods, so neither
+describes a physical TRIGA at criticality. This is a \emph{shared} simplification, not a
+difference between the calculations.\\
+Cardinal thermal-hydraulics not converged & 34.6\% energy closure after 1.17 flow-throughs;
+coolant temperatures are lower bounds.\\
+Unphysical minimum temperature & \SI{291.52}{\kelvin} against a \SI{293}{\kelvin} inlet with
+no heat sink --- a filter-stabilisation artifact that does not decay.\\
+Conduction uses a correlation & The Dittus--Boelter film coefficient supplies 63\% of the
+Cardinal temperature rise and is applied at $\mathrm{Re}=4755$, outside its reliable range.
+The converged CFD is not yet coupled back.\\
+Average pin, not hot channel & Cardinal's peaking factor of 2.2544 implies a hot channel is
+materially hotter than the reported temperatures.\\
+Thermal properties assumed & $k_{\text{fuel}}$, $k_{\text{clad}}$, the film coefficient and
+the coolant rise are documented modelling choices, not specification values.\\
+Library deviation & The Cardinal coupled production run used ENDF/B-VII.1 rather than the
+specified VIII.0; measured offset $+73$\pcm.\\
+Lattice constants generated independently & The intended shared MGXS was never produced, so
+the two-group constants are an uncontrolled variable in the eigenvalue comparison.\\
+No mesh independence study & Neither side performed mesh or polynomial-order refinement.\\
+Transient unverified & The transient was computed by one code only and has no independent
+check.\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%======================================================================
+\section{Reproduction}
+Both calculations and all data are committed to
+\texttt{github.com/kavyawadhwa134/triga-markI-benchmark} (branch \texttt{master}).
+
+\subsection{GeN-Foam / OFFBEAT}
+The OpenFOAM case is under \texttt{genfoam/}:
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Path} & \textbf{Contents}\\
+\midrule
+\texttt{genfoam/constant/neutroRegion/nuclearData} & Two-group cross sections\\
+\texttt{genfoam/triga\_steady/} & Steady-state case (\texttt{Allrun}, \texttt{Allclean})\\
+\texttt{genfoam/triga\_steady/0/} & Initial and boundary fields, fluid and neutronic regions\\
+\texttt{genfoam/triga\_steady/system/} & \texttt{blockMeshDict}, schemes, solution controls\\
+\texttt{genfoam/triga\_transient\_rod/} & $+0.5\,\$$ insertion transient\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Cardinal / OpenMC / MOOSE / NekRS}
+Inputs are under \texttt{cardinal/}; full history and the independence tag are in
+the Cardinal working repository (\texttt{pcm-triga-cardinal}).
+
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Step} & \textbf{Command}\\
+\midrule
+Environment audit & \texttt{./scripts/audit\_environment.sh}\\
+Neutronics & \texttt{./scripts/run\_openmc.sh unitcell baseline}\\
+Coupled & \texttt{./scripts/run\_coupled.sh production 8}\\
+Thermal-hydraulics & \texttt{./scripts/run\_nekrs.sh 8}\\
+Temperature coefficient & \texttt{cardinal/openmc/temperature\_coefficient.py}\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]\centering\small
+\caption{Numerical settings for the Cardinal production runs.}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value}\\
+\midrule
+Coupled neutronics & 20\,000 particles, 150 batches, 30 inactive, 10 Picard iterations\\
+Solid mesh & 6400 elements, 20 axial layers\\
+CFD mesh & 2880 spectral elements, polynomial order 7, 1\,474\,560 points\\
+Coupled runtime & \SI{2905}{\second} wall, \SI{1132}{\mega\byte} peak\\
+CFD runtime & \SI{4294}{\second} wall, \SI{2660}{\mega\byte} device, GTX 1080~Ti\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Result files}
+\begin{table}[H]\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{File} & \textbf{Contents}\\
+\midrule
+\texttt{validation\_step2.csv} & GeN-Foam solver acceptance\\
+\texttt{validation\_step5.csv} & GeN-Foam lattice constants and diffusion smoke test\\
+\texttt{validation\_step6.csv} & GeN-Foam core eigenvalue and transient summary\\
+\texttt{transient\_rod\_power.csv} & GeN-Foam transient time history\\
+\texttt{cardinal\_openmc\_unitcell.csv} & Cardinal \kinf, all configurations and seeds\\
+\texttt{cardinal\_openmc\_core*.csv} & Cardinal \keff, heterogeneous and homogenised\\
+\texttt{cardinal\_fuel\_temperature\_coefficient.csv} & Cardinal temperature-coefficient sweep\\
+\texttt{cardinal\_coupled\_*.csv} & Cardinal coupled results per Picard iteration\\
+\texttt{cardinal\_thermal\_profiles.csv} & Cardinal axial and radial profiles\\
+\texttt{cardinal\_nekrs\_convergence.csv} & Cardinal CFD convergence history\\
+\texttt{crosscode\_comparison.csv} & Case-by-case comparison, machine-readable\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 %======================================================================
 \section{Conclusions}
 \begin{enumerate}\itemsep4pt
@@ -629,6 +766,6 @@ consistency where the methods permit it --- not fidelity to a physical reactor.
 \footnotesize\color{ink2}
 Data and inputs for both calculations:
 \texttt{github.com/kavyawadhwa134/triga-markI-benchmark} (branch \texttt{master}).
-the Cardinal full history and independence tag: \texttt{github.com/kavyawadhwa134/pcm-triga-cardinal}.
+the Cardinal full history and independence tag: the Cardinal working repository (\texttt{pcm-triga-cardinal}).
 Cardinal results were frozen at tag \texttt{pcm-independent-v1} before any GeN-Foam file was read.
 \end{document}
