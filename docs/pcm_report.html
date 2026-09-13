@@ -1,4 +1,4 @@
-<title>pcM TRIGA Reference Calculation</title>
+<title>TRIGA Cross-Code Reference</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,600;8..60,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
@@ -124,7 +124,7 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
 
 <div class="wrap">
 <header>
-  <div class="eyebrow">pcM · Independent Reference Calculation · 13 Sep 2026</div>
+  <div class="eyebrow">Cardinal · Independent Reference Calculation · 13 Sep 2026</div>
   <h1>TRIGA Mark I: coupled neutronics and thermal results</h1>
   <p class="sub">An independent Cardinal / OpenMC / MOOSE / NekRS calculation of a TRIGA
   Mark I unit cell and bare core, produced without reference to the parallel GeN-Foam
@@ -143,7 +143,7 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
   <div class="shead"><div class="snum">01</div><h2>Summary</h2></div>
   <div class="sbody">
   <div class="prose">
-  <p>pcM has produced an independent, reproducible neutronics and solid-conduction
+  <p>Cardinal has produced an independent, reproducible neutronics and solid-conduction
   result set for the specified TRIGA Mark I problem. Monte&nbsp;Carlo neutronics is
   coupled to MOOSE heat conduction through Cardinal, converged over ten Picard
   iterations with exact power conservation.</p>
@@ -182,9 +182,9 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
   <div class="prose">
   <p>Produce an independently reproducible TRIGA Mark I reference calculation using the
   Cardinal ecosystem, to serve as a cross-code reference against a parallel calculation
-  (&ldquo;pcL&rdquo;) performed in GeN-Foam and OFFBEAT. The two calculations were produced
+  (&ldquo;GeN-Foam&rdquo;) performed in GeN-Foam and OFFBEAT. The two calculations were produced
   <b>without reference to one another</b>; only the scientific problem definition is shared.
-  pcM's results were frozen under git tag <code>pcm-independent-v1</code> before any pcL
+  Cardinal's results were frozen under git tag <code>pcm-independent-v1</code> before any GeN-Foam
   material was consulted.</p>
   </div>
 
@@ -198,7 +198,7 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
   <p><b>Model reduction.</b> The pin-level coupled model is a unit cell, not a full core. This
   was forced by the original 8&nbsp;GiB development machine and retained after the move to a
   32&nbsp;GiB host so the coupled result stays comparable to the frozen baseline. It means all
-  coupled temperatures describe an <b>average pin</b>; pcM's own bare-core peaking factor of
+  coupled temperatures describe an <b>average pin</b>; Cardinal's own bare-core peaking factor of
   2.2544 implies a hot channel is materially hotter.</p>
   </div>
 
@@ -225,9 +225,9 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
       <tr><td>Lattice pitch (square)</td><td class="n">4.235 cm</td><td>specification</td></tr>
       <tr><td>Active height</td><td class="n">60.0 cm</td><td>specification</td></tr>
       <tr><td>Fuel U-ZrH<sub>1.65</sub></td><td class="n">6.0 g/cm³</td><td>specification</td></tr>
-      <tr><td>Clad SS304</td><td class="n">8.00 g/cm³</td><td>pcM assumption</td></tr>
+      <tr><td>Clad SS304</td><td class="n">8.00 g/cm³</td><td>Cardinal assumption</td></tr>
       <tr><td>Thermal power</td><td class="n">250 kW</td><td>specification</td></tr>
-      <tr><td>Power per pin (120 pins)</td><td class="n">2083.33 W</td><td>pcM derivation</td></tr>
+      <tr><td>Power per pin (120 pins)</td><td class="n">2083.33 W</td><td>Cardinal derivation</td></tr>
       <tr><td>Coolant inlet</td><td class="n">293 K, 0.2 m/s</td><td>specification</td></tr>
     </tbody>
   </table></div>
@@ -279,7 +279,7 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
       <tr><td>Clad conduction</td><td class="n">1.07 K</td><td class="n">1.5 K</td><td class="n">2%</td><td>k<sub>clad</sub> = 16 W/m·K</td></tr>
     </tbody>
   </table></div>
-  <p class="note">The film drop dominates, and it is the term pcM knows least well — a
+  <p class="note">The film drop dominates, and it is the term Cardinal knows least well — a
   Dittus–Boelter correlation evaluated at Re = 4755, which is transitional and below the
   range where that correlation is reliable. Replacing it with a NekRS solution is the
   single highest-value remaining improvement.</p>
@@ -452,16 +452,16 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
 
 <!-- 7 COMPARISON -->
 <section>
-  <div class="shead"><div class="snum">07</div><h2>Comparison with pcL</h2></div>
+  <div class="shead"><div class="snum">07</div><h2>Comparison with GeN-Foam</h2></div>
   <div class="sbody">
   <div class="callout">
     <div class="ct">Provenance and scope of this section</div>
-    <p>pcM's governing instructions assign the pcL comparison to the supervisor. This section
-    is provided at explicit request and is pcM's <em>input</em> to a comparison, not a verdict.</p>
-    <p>pcL figures are taken from <code>triga-markI-benchmark</code>, branch
+    <p>Cardinal's governing instructions assign the GeN-Foam comparison to the supervisor. This section
+    is provided at explicit request and is Cardinal's <em>input</em> to a comparison, not a verdict.</p>
+    <p>GeN-Foam figures are taken from <code>triga-markI-benchmark</code>, branch
     <code>master</code>: <code>results/validation_step5.csv</code> (lattice constants),
     <code>validation_step6.csv</code> (core and transient) and <code>validation_step2.csv</code>
-    (solver acceptance). pcM's own results were frozen at git tag
+    (solver acceptance). Cardinal's own results were frozen at git tag
     <code>pcm-independent-v1</code> before this branch was read.</p>
   </div>
 
@@ -470,7 +470,7 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
   <p>Before comparing numbers it matters that the codes solve different equations:</p>
   </div>
   <div class="tw"><table>
-    <thead><tr><th></th><th>pcM (Cardinal)</th><th>pcL (GeN-Foam / OFFBEAT)</th></tr></thead>
+    <thead><tr><th></th><th>Cardinal (Cardinal)</th><th>GeN-Foam (GeN-Foam / OFFBEAT)</th></tr></thead>
     <tbody>
       <tr><td>Neutron transport</td><td>Monte Carlo, continuous energy</td><td>Deterministic, multigroup diffusion / SP3</td></tr>
       <tr><td>Energy treatment</td><td>Continuous, full spectrum</td><td>2 groups, 0.625 eV cutoff</td></tr>
@@ -480,15 +480,15 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
     </tbody>
   </table></div>
   <div class="callout">
-    <div class="ct">pcL quantifies its own method error — and it is large</div>
+    <div class="ct">GeN-Foam quantifies its own method error — and it is large</div>
     <p><code>validation_step5.csv</code> reports both a Monte Carlo and a diffusion solution
     for the <b>same</b> pin cell:</p>
     <p class="mono" style="font-size:14px">OpenMC Monte Carlo 1.38810 &nbsp;·&nbsp;
        GeN-Foam 2-group diffusion 1.331 &nbsp;→&nbsp; <b>−4114 pcm</b></p>
-    <p>That is pcL's own measurement of deterministic-vs-stochastic disagreement on the
+    <p>That is GeN-Foam's own measurement of deterministic-vs-stochastic disagreement on the
     simplest possible geometry, and it is <b>eight times the 500 pcm threshold</b> before any
-    core-geometry effect enters. Any k comparison between pcM (continuous-energy Monte Carlo)
-    and pcL's core solution (2-group diffusion) inherits an error of this order by
+    core-geometry effect enters. Any k comparison between Cardinal (continuous-energy Monte Carlo)
+    and GeN-Foam's core solution (2-group diffusion) inherits an error of this order by
     construction.</p>
   </div>
 
@@ -497,9 +497,9 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
     <div class="ctitle">k-infinity, 2-D unit cell, ENDF/B-VIII.0</div>
     <div class="csub">Same geometry, same library, same code family — so this comparison is
       meaningful. Bars show ±1σ counting statistics; the band is the ±500 pcm threshold
-      set for this exercise, centred on pcL.</div>
+      set for this exercise, centred on GeN-Foam.</div>
     <div class="sv"><svg id="c-kinf" viewBox="0 0 760 210" role="img"
-      aria-label="k-infinity: pcM 1.384207 versus pcL 1.388100, a 280 pcm difference inside the 500 pcm threshold"></svg>
+      aria-label="k-infinity: Cardinal 1.384207 versus GeN-Foam 1.388100, a 280 pcm difference inside the 500 pcm threshold"></svg>
       <div class="tip" id="t-kinf"></div></div>
   </div>
   <p class="prose">The difference is <b>−280 pcm (3.1σ)</b> — statistically resolved, but
@@ -512,32 +512,32 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
       the explanation. The difference decomposes into two measurable steps: homogenisation
       (Monte Carlo on both sides) and then solution method (diffusion vs Monte Carlo).</div>
     <div class="legend">
-      <span class="lg"><span class="sw" style="background:var(--s1)"></span>pcM variants</span>
-      <span class="lg"><span class="sw" style="background:var(--s2)"></span>pcL reported</span>
+      <span class="lg"><span class="sw" style="background:var(--s1)"></span>Cardinal variants</span>
+      <span class="lg"><span class="sw" style="background:var(--s2)"></span>GeN-Foam reported</span>
     </div>
     <div class="sv"><svg id="c-keff" viewBox="0 0 760 300" role="img"
-      aria-label="Core k-effective: pcM bare 1.1021, pcM homogenised 1.1453, pcL 1.2405"></svg>
+      aria-label="Core k-effective: Cardinal bare 1.1021, Cardinal homogenised 1.1453, GeN-Foam 1.2405"></svg>
       <div class="tip" id="t-keff"></div></div>
   </div>
 
   <div class="tw"><table>
     <thead><tr><th>Step</th><th>From → to</th><th class="n">Δρ</th><th>What it isolates</th></tr></thead>
     <tbody>
-      <tr><td>1 · Homogenisation</td><td>pcM heterogeneous → pcM homogenised</td><td class="n">+3920 pcm</td><td>Monte Carlo both sides; pure geometry-smearing effect</td></tr>
-      <tr><td>2 · Solution method</td><td>pcM homogenised → pcL diffusion</td><td class="n">+8320 pcm</td><td>Same homogenised bare box; pure method effect</td></tr>
-      <tr class="hl"><td>Total</td><td>pcM heterogeneous → pcL</td><td class="n">+12566 pcm</td><td>—</td></tr>
+      <tr><td>1 · Homogenisation</td><td>Cardinal heterogeneous → Cardinal homogenised</td><td class="n">+3920 pcm</td><td>Monte Carlo both sides; pure geometry-smearing effect</td></tr>
+      <tr><td>2 · Solution method</td><td>Cardinal homogenised → GeN-Foam diffusion</td><td class="n">+8320 pcm</td><td>Same homogenised bare box; pure method effect</td></tr>
+      <tr class="hl"><td>Total</td><td>Cardinal heterogeneous → GeN-Foam</td><td class="n">+12566 pcm</td><td>—</td></tr>
     </tbody>
   </table></div>
 
   <div class="callout">
     <div class="ct">Conclusion: the k-effective gap is method, not geometry</div>
-    <p>An earlier draft of this report proposed that pcL might have modelled a graphite
-    reflector. <b>pcL's own metadata rules that out</b> —
+    <p>An earlier draft of this report proposed that GeN-Foam might have modelled a graphite
+    reflector. <b>GeN-Foam's own metadata rules that out</b> —
     <code>validation_step6.csv</code> records the core as
     <em>&ldquo;eigenvalue diffusion, bare homogenized box vacuum BCs&rdquo;</em>. Both sides
     are bare with vacuum boundaries.</p>
     <p>The residual +8320 pcm is therefore attributable to solution method, and it is
-    consistent in sign and order with the −4114 pcm that pcL's <em>own</em> smoke test
+    consistent in sign and order with the −4114 pcm that GeN-Foam's <em>own</em> smoke test
     measures between GeN-Foam diffusion and OpenMC Monte Carlo on the pin cell. Two-group
     diffusion in a small bare core leaking 20.1% is operating where it is least reliable.</p>
     <p><b>This is not evidence that either calculation is wrong.</b> It is evidence that a
@@ -548,28 +548,28 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
 
   <h3>Quantities that are not comparable as reported</h3>
   <div class="tw"><table>
-    <thead><tr><th>Quantity</th><th class="n">pcM</th><th class="n">pcL</th><th>Why not comparable</th></tr></thead>
+    <thead><tr><th>Quantity</th><th class="n">Cardinal</th><th class="n">GeN-Foam</th><th>Why not comparable</th></tr></thead>
     <tbody>
-      <tr><td>Pin power peak/average</td><td class="n">2.2544</td><td class="n">2.45</td><td>pcL notes its single zone is &ldquo;cosine-like, flat by construction&rdquo;</td></tr>
-      <tr><td>Max fuel temperature</td><td class="n">359.0 K</td><td class="n">594.2 K</td><td>pcM is an average pin with a correlation film coefficient; pcL is a sub-scale pin average from OFFBEAT</td></tr>
-      <tr><td>Max coolant temperature</td><td class="n">294.2 K</td><td class="n">306.5 K</td><td>pcM's CFD is unconverged — this is a lower bound, not a result</td></tr>
-      <tr><td>+0.5 $ transient peak</td><td class="n">—</td><td class="n">489.7 kW</td><td><span class="pill no">no pcM result</span> — out of pcM scope</td></tr>
-      <tr><td>Transient equilibrium</td><td class="n">—</td><td class="n">304.9 kW</td><td><span class="pill no">no pcM result</span> — Doppler-limited, pcL</td></tr>
+      <tr><td>Pin power peak/average</td><td class="n">2.2544</td><td class="n">2.45</td><td>GeN-Foam notes its single zone is &ldquo;cosine-like, flat by construction&rdquo;</td></tr>
+      <tr><td>Max fuel temperature</td><td class="n">359.0 K</td><td class="n">594.2 K</td><td>Cardinal is an average pin with a correlation film coefficient; GeN-Foam is a sub-scale pin average from OFFBEAT</td></tr>
+      <tr><td>Max coolant temperature</td><td class="n">294.2 K</td><td class="n">306.5 K</td><td>Cardinal's CFD is unconverged — this is a lower bound, not a result</td></tr>
+      <tr><td>+0.5 $ transient peak</td><td class="n">—</td><td class="n">489.7 kW</td><td><span class="pill no">no Cardinal result</span> — out of Cardinal scope</td></tr>
+      <tr><td>Transient equilibrium</td><td class="n">—</td><td class="n">304.9 kW</td><td><span class="pill no">no Cardinal result</span> — Doppler-limited, GeN-Foam</td></tr>
       <tr><td>Coolant velocity / pressure</td><td class="n">—</td><td class="n">—</td><td><span class="pill no">not extracted either side</span></td></tr>
     </tbody>
   </table></div>
-  <p class="note">pcM's peak/average of 2.2544 also means the reported temperatures describe
+  <p class="note">Cardinal's peak/average of 2.2544 also means the reported temperatures describe
   an average pin. A hot-channel calculation would be materially hotter, so the fuel
   temperature line compares two different things even setting the missing CFD aside.</p>
 
-  <h3>Lattice constants: pcL generated its own</h3>
-  <p class="prose">The project workflow intended pcM to generate the 2-group MGXS and hand it
-  to pcL (Phase 6). <b>pcM did not run that phase.</b> pcL's
+  <h3>Lattice constants: GeN-Foam generated its own</h3>
+  <p class="prose">The project workflow intended Cardinal to generate the 2-group MGXS and hand it
+  to GeN-Foam (Phase 6). <b>Cardinal did not run that phase.</b> GeN-Foam's
   <code>validation_step5.csv</code> therefore carries its own set — removal, νΣ<sub>f</sub>,
   a P<sub>0</sub> scatter matrix, diffusion coefficients, χ and inverse velocities — condensed
   from its own OpenMC pin-cell run. Both sides condensed from Monte Carlo, but independently,
   so the group constants are a further uncontrolled difference in the k-effective comparison.
-  Generating pcM's MGXS and re-running pcL's diffusion solve with it would isolate the
+  Generating Cardinal's MGXS and re-running GeN-Foam's diffusion solve with it would isolate the
   remaining method error cleanly.</p>
   </div>
 </section>
@@ -603,7 +603,7 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
         <td><span class="pill warn">partial</span></td>
         <td>Conduction within 1.1% of analytic; ZrH feedback confirmed at −6.34 pcm/K;
             <b>but CFD shows an unphysical sub-inlet temperature</b></td></tr>
-      <tr><td>4 · Cross-code</td><td>Does it agree with pcL?</td>
+      <tr><td>4 · Cross-code</td><td>Does it agree with GeN-Foam?</td>
         <td><span class="pill warn">partial</span></td>
         <td>Where methodologically comparable (Monte Carlo pin cell) agreement is 280 pcm,
             inside threshold. The k-effective difference is decomposed and attributed to
@@ -621,9 +621,9 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
       <tr><td>CFD thermal not converged</td><td>Extend to ~5 flow-throughs after resolving the filter undershoot</td><td class="n">~5 h GPU</td></tr>
       <tr><td>Sub-inlet temperature</td><td>Reduce scalar HPFRT strength; re-check with a short run</td><td class="n">~1 h GPU</td></tr>
       <tr><td>No mesh independence</td><td>Repeat at order 5 and order 8; compare integral quantities</td><td class="n">~8 h GPU</td></tr>
-      <tr><td>k-effective method gap</td><td>Generate pcM's 2-group MGXS (Phase 6) and have pcL re-solve with it</td><td class="n">~2 h CPU</td></tr>
+      <tr><td>k-effective method gap</td><td>Generate Cardinal's 2-group MGXS (Phase 6) and have GeN-Foam re-solve with it</td><td class="n">~2 h CPU</td></tr>
       <tr><td>Library deviation</td><td>Re-run coupled production on ENDF/B-VIII.0</td><td class="n">~1 h CPU</td></tr>
-      <tr><td>Transient not attempted</td><td>Out of pcM's defined scope; would need a coupled transient capability</td><td class="n">—</td></tr>
+      <tr><td>Transient not attempted</td><td>Out of Cardinal's defined scope; would need a coupled transient capability</td><td class="n">—</td></tr>
       <tr><td>No validation</td><td>Obtain TRIGA experimental data (criticality, temperature)</td><td class="n">—</td></tr>
     </tbody>
   </table></div>
@@ -650,11 +650,11 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
       from a correlation used outside its reliable Reynolds range.</li>
     <li><b>Average pin, not hot channel.</b> Peak/average is 2.2544.</li>
     <li><b>Thermal properties are assumptions</b>, not specification values: k<sub>fuel</sub>,
-      k<sub>clad</sub>, h, and the coolant rise are all documented pcM choices.</li>
+      k<sub>clad</sub>, h, and the coolant rise are all documented Cardinal choices.</li>
     <li><b>Library deviation.</b> The coupled production run used ENDF/B-VII.1, not the
       specified VIII.0; the measured offset is +73 pcm.</li>
     <li><b>Bare core.</b> No reflector or control rods were modelled, per the specification
-      as written. pcL's core is also bare, so this is a shared simplification rather than a
+      as written. GeN-Foam's core is also bare, so this is a shared simplification rather than a
       difference — but it means neither result describes a physical TRIGA at criticality.</li>
   </ul>
   </div>
@@ -681,8 +681,8 @@ footer{margin-top:64px;padding-top:22px;border-top:1px solid var(--rule);
 </section>
 
 <footer>
-  pcM independent reference calculation · Cardinal / OpenMC / MOOSE / NekRS ·
-  results frozen at tag pcm-independent-v1 before any pcL material was read ·
+  Cardinal independent reference calculation · Cardinal / OpenMC / MOOSE / NekRS ·
+  results frozen at tag pcm-independent-v1 before any GeN-Foam material was read ·
   CFD thermal field not converged · no experimental validation
 </footer>
 </div>
@@ -791,7 +791,7 @@ lineChart("c-tc","t-tc",TC,[cv('--s3')],"Fuel temperature (K)","k-infinity",
   const lo=1.3785,hi=1.3975;
   const X=v=>M.l+(v-lo)/(hi-lo)*(W-M.l-M.r);
   const ink=cv('--ink'),ink2=cv('--ink2'),ink3=cv('--ink3');
-  // 500 pcm band around pcL
+  // 500 pcm band around GeN-Foam
   const pcl=1.38810, halfk=500e-5*pcl;
   svg.appendChild(el("rect",{x:X(pcl-halfk),y:M.t,width:X(pcl+halfk)-X(pcl-halfk),
     height:H-M.t-M.b,fill:cv('--sunken')}));
@@ -801,7 +801,7 @@ lineChart("c-tc","t-tc",TC,[cv('--s3')],"Fuel temperature (K)","k-infinity",
     svg.appendChild(el("line",{x1:X(v),x2:X(v),y1:M.t,y2:H-M.b,stroke:cv('--rule'),"stroke-width":1}));
     const g=el("text",{x:X(v),y:H-M.b+19,"text-anchor":"middle",fill:ink2,"font-size":11,
       "font-family":"IBM Plex Mono, monospace"});g.textContent=v.toFixed(3);svg.appendChild(g)}
-  const rows=[{n:"pcM",k:1.384207,s:0.000214,c:cv('--s1')},{n:"pcL",k:1.388100,s:0.001230,c:cv('--s2')}];
+  const rows=[{n:"Cardinal",k:1.384207,s:0.000214,c:cv('--s1')},{n:"GeN-Foam",k:1.388100,s:0.001230,c:cv('--s2')}];
   rows.forEach((r,i)=>{
     const y=M.t+34+i*52;
     svg.appendChild(el("line",{x1:X(r.k-r.s),x2:X(r.k+r.s),y1:y,y2:y,stroke:r.c,"stroke-width":2}));
@@ -829,9 +829,9 @@ lineChart("c-tc","t-tc",TC,[cv('--s3')],"Fuel temperature (K)","k-infinity",
     const g=el("text",{x:X(v),y:H-M.b+19,"text-anchor":"middle",fill:ink2,"font-size":11,
       "font-family":"IBM Plex Mono, monospace"});g.textContent=v.toFixed(2);svg.appendChild(g)}
   const rows=[
-    {n:"pcM bare core",d:"heterogeneous, Monte Carlo",k:1.102059,c:cv('--s1')},
-    {n:"pcM homogenised",d:"smeared, Monte Carlo",k:1.145259,c:cv('--s1')},
-    {n:"pcL GeN-Foam",d:"homogenised, 2-group diffusion",k:1.240544,c:cv('--s2')}];
+    {n:"Cardinal bare core",d:"heterogeneous, Monte Carlo",k:1.102059,c:cv('--s1')},
+    {n:"Cardinal homogenised",d:"smeared, Monte Carlo",k:1.145259,c:cv('--s1')},
+    {n:"GeN-Foam",d:"homogenised, 2-group diffusion",k:1.240544,c:cv('--s2')}];
   rows.forEach((r,i)=>{
     const y=M.t+30+i*52;
     svg.appendChild(el("line",{x1:M.l,x2:X(r.k),y1:y,y2:y,stroke:r.c,"stroke-width":2,opacity:.3}));

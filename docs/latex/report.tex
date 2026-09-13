@@ -43,17 +43,17 @@
 GeN-Foam and Cardinal\par}
 \vspace{10mm}
 {\large A code-to-code study of a 250\,kW pool-type research reactor, comparing a
-deterministic OpenFOAM multiphysics solution (pcL) against a stochastic
-Monte Carlo reference (pcM).\par}
+deterministic OpenFOAM multiphysics solution (GeN-Foam) against a stochastic
+Monte Carlo reference (Cardinal).\par}
 \vspace{15mm}
 \begin{tabular}{@{}ll@{}}
 \toprule
-\textbf{pcL} & GeN-Foam / OFFBEAT --- 2-group diffusion, finite volume\\
-\textbf{pcM} & Cardinal / OpenMC / MOOSE / NekRS --- continuous-energy Monte Carlo\\
+\textbf{GeN-Foam / OFFBEAT} & 2-group diffusion, finite volume\\
+\textbf{Cardinal} & OpenMC / MOOSE / NekRS --- continuous-energy Monte Carlo\\
 \midrule
-Nuclear data & ENDF/B-VIII.0 (both); ENDF/B-VII.1 for the pcM coupled run\\
+Nuclear data & ENDF/B-VIII.0 (both); ENDF/B-VII.1 for the Cardinal coupled run\\
 Repository & \texttt{github.com/kavyawadhwa134/triga-markI-benchmark}\\
-Independence & pcM frozen at tag \texttt{pcm-independent-v1} before pcL was read\\
+Independence & Cardinal results frozen before the GeN-Foam case was read\\
 \bottomrule
 \end{tabular}
 \vfill
@@ -120,7 +120,7 @@ bound-hydrogen physics that defines a TRIGA is absent.
 interpretation of every comparison in Section~\ref{sec:comp}.}
 \begin{tabular}{@{}lll@{}}
 \toprule
- & \textbf{pcL (GeN-Foam / OFFBEAT)} & \textbf{pcM (Cardinal)}\\
+ & \textbf{GeN-Foam / OFFBEAT} & \textbf{Cardinal}\\
 \midrule
 Neutron transport & Deterministic, 2-group diffusion & Monte Carlo, continuous energy\\
 Energy treatment & 2 groups, \SI{0.625}{\electronvolt} cutoff & Continuous, full spectrum\\
@@ -140,12 +140,12 @@ methodologically comparable quantities.
 
 \newpage
 %======================================================================
-\section{Results: pcL --- GeN-Foam / OFFBEAT}
+\section{Results: GeN-Foam / OFFBEAT}
 \subsection{Solver acceptance}
 Prior to the TRIGA calculation, GeN-Foam was verified against its own reference cases.
 
 \begin{table}[H]\centering\small
-\caption{pcL solver acceptance (\texttt{validation\_step2.csv}).}
+\caption{GeN-Foam solver acceptance (\texttt{validation\_step2.csv}).}
 \begin{tabular}{@{}llrrl@{}}
 \toprule
 \textbf{Case} & \textbf{Quantity} & \textbf{Simulated} & \textbf{Expected} & \textbf{Status}\\
@@ -160,12 +160,12 @@ Prior to the TRIGA calculation, GeN-Foam was verified against its own reference 
 \end{table}
 
 \subsection{Lattice constants}
-pcL condensed its own two-group constants from an OpenMC pin-cell calculation
+GeN-Foam condensed its own two-group constants from an OpenMC pin-cell calculation
 (70 batches, 20 inactive, 8000 particles per batch), giving
 $\kinf = 1.38810 \pm 0.00123$.
 
 \begin{table}[H]\centering\small
-\caption{pcL two-group lattice constants (\texttt{validation\_step5.csv}).}
+\caption{GeN-Foam two-group lattice constants (\texttt{validation\_step5.csv}).}
 \begin{tabular}{@{}lrr@{}}
 \toprule
 \textbf{Quantity} & \textbf{Fast} & \textbf{Thermal}\\
@@ -187,7 +187,7 @@ $S_{2\rightarrow2}$ & & 201.932\\
 \begin{callout}{Internal method benchmark}
 The same file reports a GeN-Foam diffusion solution for the \emph{identical} pin cell:
 \texttt{genfoam\_smoke\_keff} $=1.331$, against the Monte Carlo value of $1.38810$ --- a
-difference of $\mathbf{-4114}$\,\textbf{pcm}. This is pcL's own measurement of
+difference of $\mathbf{-4114}$\,\textbf{pcm}. This is GeN-Foam's own measurement of
 deterministic-versus-stochastic disagreement on the simplest available geometry, and it is
 \emph{eight times} the 500\pcm{} acceptance criterion before any core-geometry effect
 enters.
@@ -197,7 +197,7 @@ enters.
 The core is modelled as a bare homogenised box with vacuum boundaries.
 
 \begin{table}[H]\centering\small
-\caption{pcL steady-state results (\texttt{validation\_step6.csv}).}
+\caption{GeN-Foam steady-state results (\texttt{validation\_step6.csv}).}
 \begin{tabular}{@{}llp{52mm}@{}}
 \toprule
 \textbf{Quantity} & \textbf{Value} & \textbf{Note}\\
@@ -214,12 +214,12 @@ Power peaking (max/avg) & 2.45 & single zone; cosine-like, flat by construction\
 \begin{figure}[H]\centering
 \includegraphics[width=.48\textwidth]{fig/pcl_mesh.png}\hfill
 \includegraphics[width=.48\textwidth]{fig/pcl_steady_power.png}
-\caption{pcL GeN-Foam computational mesh (left) and steady-state power density (right).}
+\caption{GeN-Foam computational mesh (left) and steady-state power density (right).}
 \end{figure}
 
 \begin{figure}[H]\centering
 \includegraphics[width=.60\textwidth]{fig/pcl_steady_T.png}
-\caption{pcL steady-state temperature field. The maximum lies in the upper portion of the
+\caption{GeN-Foam steady-state temperature field. The maximum lies in the upper portion of the
 core, consistent with coolant heating as it rises through the channel.}
 \end{figure}
 
@@ -229,13 +229,13 @@ $t=\SI{100.5}{\second}$.
 
 \begin{figure}[H]\centering
 \includegraphics[width=\textwidth]{fig/pcl_transient.png}
-\caption{pcL transient response. Power peaks at \SI{489.7}{\kilo\watt} and settles to a
+\caption{GeN-Foam transient response. Power peaks at \SI{489.7}{\kilo\watt} and settles to a
 Doppler-limited equilibrium of \SI{304.9}{\kilo\watt}; average fuel temperature rises
 \SI{32.89}{\kelvin}.}
 \end{figure}
 
 \begin{table}[H]\centering\small
-\caption{pcL transient summary.}
+\caption{GeN-Foam transient summary.}
 \begin{tabular}{@{}lrl@{}}
 \toprule
 \textbf{Quantity} & \textbf{Value} & \textbf{Note}\\
@@ -256,12 +256,12 @@ The stated Doppler feedback of $-328.9$\pcm{} accompanies a fuel temperature ris
 \]
 The result is \emph{exactly} $-10.000$, which indicates a constant coefficient supplied as a
 model input rather than one computed from nuclear data. Its origin is not documented in the
-committed files. Section~\ref{sec:comp} compares it against pcM's computed value.
+committed files. Section~\ref{sec:comp} compares it against Cardinal's computed value.
 \end{callout}
 
 \newpage
 %======================================================================
-\section{Results: pcM --- Cardinal / OpenMC / MOOSE / NekRS}
+\section{Results: Cardinal / OpenMC / MOOSE / NekRS}
 \subsection{Method}
 Continuous-energy Monte Carlo neutronics (OpenMC) is coupled to finite-element heat
 conduction (MOOSE) through Cardinal by Picard iteration: cell-averaged fission power is
@@ -274,7 +274,7 @@ describe an \emph{average} pin.
 
 \subsection{Neutronics}
 \begin{table}[H]\centering\small
-\caption{pcM eigenvalue results, ENDF/B-VIII.0, continuous-energy Monte Carlo.}
+\caption{Cardinal eigenvalue results, ENDF/B-VIII.0, continuous-energy Monte Carlo.}
 \begin{tabular}{@{}llrr@{}}
 \toprule
 \textbf{Quantity} & \textbf{Model} & \textbf{Value} & \textbf{Uncertainty}\\
@@ -300,12 +300,12 @@ with the moderator held at \SI{293}{\kelvin}, isolating fuel feedback.
 
 \begin{figure}[H]\centering
 \includegraphics[width=.82\textwidth]{fig/fig4_tempcoeff.png}
-\caption{pcM fuel temperature coefficient. $\kinf$ falls from 1.384926 at
+\caption{Cardinal fuel temperature coefficient. $\kinf$ falls from 1.384926 at
 \SI{296}{\kelvin} to 1.304249 at \SI{1000}{\kelvin}.}
 \end{figure}
 
 \begin{table}[H]\centering\small
-\caption{pcM local fuel temperature coefficient by interval.}
+\caption{Cardinal local fuel temperature coefficient by interval.}
 \begin{tabular}{@{}lr@{}}
 \toprule
 \textbf{Band} & \textbf{Coefficient}\\
@@ -324,20 +324,20 @@ with the moderator held at \SI{293}{\kelvin}, isolating fuel feedback.
 The coefficient is large, negative, and becomes \emph{more} negative as the fuel heats. Both
 features identify this as hydride physics rather than U-238 Doppler: a UO$_2$ LWR pin gives
 roughly $-2$ to $-3$\,pcm/K and its magnitude does not grow in this way. The highlighted band
-is the one in which pcL's transient operates.
+is the one in which the GeN-Foam transient operates.
 
 \subsection{Coupled neutronics--conduction}
 \begin{figure}[H]\centering
 \includegraphics[width=.49\textwidth]{fig/fig1_axial.png}\hfill
 \includegraphics[width=.49\textwidth]{fig/fig2_radial.png}
-\caption{pcM coupled temperature solution. Left: axial profile, slightly top-skewed
+\caption{Cardinal coupled temperature solution. Left: axial profile, slightly top-skewed
 (\SI{305.98}{\kelvin} outlet against \SI{302.56}{\kelvin} inlet) because the coolant heats as
 it rises. Right: radial profile at mid-plane; temperature is continuous across the
 fuel--clad interface at \SI{1.815}{\centi\meter}, confirming the stitched contact.}
 \end{figure}
 
 \begin{table}[H]\centering\small
-\caption{pcM coupled results and temperature drop budget.}
+\caption{Cardinal coupled results and temperature drop budget.}
 \begin{tabular}{@{}lrrr@{}}
 \toprule
 \textbf{Quantity} & \textbf{Value} & \textbf{Analytic} & \textbf{Share}\\
@@ -361,7 +361,7 @@ where that correlation is reliable.
 
 \begin{figure}[H]\centering
 \includegraphics[width=.78\textwidth]{fig/fig3_picard.png}
-\caption{pcM Picard convergence. $\keff$ settles within Monte Carlo noise after the first
+\caption{Cardinal Picard convergence. $\keff$ settles within Monte Carlo noise after the first
 temperature feedback; average fuel temperature is stable to \SI{e-8}{\kelvin}.}
 \end{figure}
 
@@ -372,13 +372,13 @@ polynomial order 7, 2880 spectral elements, on an NVIDIA GTX 1080~Ti. The run co
 
 \begin{figure}[H]\centering
 \includegraphics[width=.85\textwidth]{fig/fig7_nekrs.png}
-\caption{pcM NekRS evolution. Upper: coolant temperatures, all still rising at the final
+\caption{Cardinal NekRS evolution. Upper: coolant temperatures, all still rising at the final
 step, with the minimum below the \SI{293}{\kelvin} inlet throughout. Lower: energy closure
 reaches only 34.6\% of the steady balance.}
 \end{figure}
 
 \begin{table}[H]\centering\small
-\caption{pcM thermal-hydraulic state at 20\,000 steps.}
+\caption{Cardinal thermal-hydraulic state at 20\,000 steps.}
 \begin{tabular}{@{}lrrl@{}}
 \toprule
 \textbf{Quantity} & \textbf{Value} & \textbf{Steady target} & \textbf{Status}\\
@@ -392,7 +392,7 @@ Mass-flow imbalance & 0.122\% & $\rightarrow 0$ & converged\\
 \end{tabular}
 \end{table}
 
-\begin{callout}[alertbg]{The pcM thermal-hydraulic field is not converged}
+\begin{callout}[alertbg]{The Cardinal thermal-hydraulic field is not converged}
 The flow field has converged --- mass imbalance is flat at 0.122\% from step 1400 onward ---
 but only 34.6\% of the wall heat leaves the domain, so 65.4\% is still accumulating.
 \textbf{The coolant temperatures above are lower bounds, not steady-state results.} Reaching
@@ -414,13 +414,13 @@ high-pass filter stabilisation and it does not decay.
 difference; the acceptance criterion applies to those alone.}
 \begin{tabular}{@{}clrrrl@{}}
 \toprule
-\textbf{\#} & \textbf{Case} & \textbf{pcL} & \textbf{pcM} & \textbf{Difference} & \textbf{Comparable}\\
+\textbf{\#} & \textbf{Case} & \textbf{GeN-Foam} & \textbf{Cardinal} & \textbf{Difference} & \textbf{Comparable}\\
 \midrule
 \rowcolor{rowbg}
 1 & \kinf, unit cell & $1.388100$ & $1.384207$ & $-280$\pcm & yes\\
 2 & \keff, heterogeneous & $1.240544$ & $1.102059$ & $+12566$\pcm & no --- method\\
 3 & \keff, homogenised & $1.240544$ & $1.145259$ & $+8320$\pcm & partial\\
-4 & Diffusion vs.\ Monte Carlo & $1.331$ & $1.388100$ & $-4114$\pcm & pcL-internal\\
+4 & Diffusion vs.\ Monte Carlo & $1.331$ & $1.388100$ & $-4114$\pcm & GeN-Foam internal\\
 5 & Fuel temp.\ coefficient & $-10.000$ & $-7.76$ & $-29\%$ & partial\\
 6 & Power peaking & $2.45$ & $2.2544$ & $-8.0\%$ & no\\
 7 & Max fuel temperature & \SI{594.2}{\kelvin} & \SI{359.0}{\kelvin} & $-\SI{235}{\kelvin}$ & no\\
@@ -441,11 +441,11 @@ equations on the same geometry.
 \begin{figure}[H]\centering
 \includegraphics[width=.82\textwidth]{fig/fig5_kinf.png}
 \caption{$\kinf$ comparison. Bars are $\pm 1\sigma$ counting statistics; the shaded band is
-the 500\pcm{} acceptance criterion centred on pcL.}
+the 500\pcm{} acceptance criterion centred on GeN-Foam.}
 \end{figure}
 
 The difference is $\mathbf{-280}$\,\textbf{pcm} at $3.1\sigma$ --- statistically resolved but
-comfortably inside the acceptance criterion. pcM's uncertainty is approximately six times
+comfortably inside the acceptance criterion. Cardinal's uncertainty is approximately six times
 tighter, reflecting a 25-fold larger particle budget.
 
 \emph{Interpretation.} Two independent implementations of the same specification, in the same
@@ -453,9 +453,9 @@ code, agree. This is the strongest evidence in the study that the shared problem
 was interpreted consistently on both sides.
 
 \subsection{Cases 2--4 --- the \keff{} difference is method, not error}
-Both cores are bare boxes with vacuum boundaries: pcL's \texttt{validation\_step6.csv}
+Both cores are bare boxes with vacuum boundaries: the GeN-Foam \texttt{validation\_step6.csv}
 records the model verbatim as \emph{``eigenvalue diffusion, bare homogenized box vacuum
-BCs''}. \textbf{Geometry is therefore not the explanation.} An earlier hypothesis that pcL
+BCs''}. \textbf{Geometry is therefore not the explanation.} An earlier hypothesis that GeN-Foam
 had modelled a graphite reflector is contradicted by this metadata and is withdrawn.
 
 \begin{figure}[H]\centering
@@ -470,31 +470,31 @@ both sides) and a solution-method step (same homogenised bare box).}
 \toprule
 \textbf{Step} & \textbf{From $\rightarrow$ to} & \textbf{$\Delta\rho$} & \textbf{What it isolates}\\
 \midrule
-1. Homogenisation & pcM het.\ $\rightarrow$ pcM homog. & $+3920$\pcm & Monte Carlo both sides; pure geometry smearing\\
-2. Solution method & pcM homog.\ $\rightarrow$ pcL & $+8320$\pcm & Same homogenised bare box; pure method\\
+1. Homogenisation & Cardinal het.\ $\rightarrow$ homog. & $+3920$\pcm & Monte Carlo both sides; pure geometry smearing\\
+2. Solution method & Cardinal homog.\ $\rightarrow$ GeN-Foam & $+8320$\pcm & Same homogenised bare box; pure method\\
 \midrule
 \rowcolor{rowbg}
-Total & pcM het.\ $\rightarrow$ pcL & $+12566$\pcm & ---\\
+Total & Cardinal het.\ $\rightarrow$ GeN-Foam & $+12566$\pcm & ---\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-The residual $+8320$\pcm{} is corroborated independently by pcL's own smoke test
+The residual $+8320$\pcm{} is corroborated independently by GeN-Foam's own smoke test
 (Case 4), which measures $-4114$\pcm{} between GeN-Foam diffusion and Monte Carlo on the pin
 cell. The sign reverses between the two geometries --- diffusion under-predicts on the
 reflective pin cell but over-predicts on the bare core --- which is consistent with leakage
-treatment dominating in the bare case. pcM's core leaks 20.1\% of its neutrons, a regime in
+treatment dominating in the bare case. Cardinal's core leaks 20.1\% of its neutrons, a regime in
 which few-group diffusion theory is least reliable.
 
-A further uncontrolled variable applies to Cases 2--3: the project workflow intended pcM to
-generate the two-group MGXS and supply it to pcL, but \textbf{that phase was not run}. pcL
-condensed its own constants independently (Case 11). Re-solving pcL's diffusion model with
-pcM-generated cross sections would isolate the remaining method error cleanly.
+A further uncontrolled variable applies to Cases 2--3: the project workflow intended Cardinal to
+generate the two-group MGXS and supply it to GeN-Foam, but \textbf{that phase was not run}. GeN-Foam
+condensed its own constants independently (Case 11). Re-solving the GeN-Foam diffusion model with
+Cardinal-generated cross sections would isolate the remaining method error cleanly.
 
 \begin{callout}{The acceptance criterion does not apply across methods}
 A 500\pcm{} threshold cannot meaningfully be applied between a continuous-energy Monte
 Carlo eigenvalue and a two-group diffusion eigenvalue. They are different quantities, and
-pcL's own data places the method difference at thousands of pcm on even the simplest
+GeN-Foam's own data places the method difference at thousands of pcm on even the simplest
 geometry. Applying the criterion across methods would manufacture a discrepancy that is not
 evidence of error in either calculation.
 \end{callout}
@@ -504,48 +504,48 @@ This is the most consequential physics difference, because the coefficient gover
 transient response.
 
 \begin{table}[H]\centering\small
-\caption{Fuel temperature coefficient, compared in pcL's own operating band.}
+\caption{Fuel temperature coefficient, compared in GeN-Foam's own operating band.}
 \begin{tabular}{@{}lll@{}}
 \toprule
  & \textbf{Value} & \textbf{Origin}\\
 \midrule
-pcM, 500--\SI{600}{\kelvin} & $-7.76$\,pcm/K & computed from $S(\alpha,\beta)$ ZrH data\\
-pcM, 296--\SI{1000}{\kelvin} average & $-6.34$\,pcm/K & computed\\
-pcL, transient & $-10.000$\,pcm/K & constant input; origin undocumented\\
+Cardinal, 500--\SI{600}{\kelvin} & $-7.76$\,pcm/K & computed from $S(\alpha,\beta)$ ZrH data\\
+Cardinal, 296--\SI{1000}{\kelvin} average & $-6.34$\,pcm/K & computed\\
+GeN-Foam, transient & $-10.000$\,pcm/K & constant input; origin undocumented\\
 \midrule
 \rowcolor{rowbg}
-Difference in pcL's band & $-29\%$ & pcL more negative\\
+Difference in the GeN-Foam band & $-29\%$ & GeN-Foam more negative\\
 \bottomrule
 \end{tabular}
 \end{table}
 
 \begin{callout}[alertbg]{Recommended action}
-A coefficient 29\% more negative shuts a power excursion down faster. pcL's peak power of
+A coefficient 29\% more negative shuts a power excursion down faster. GeN-Foam's peak power of
 \SI{489.7}{\kilo\watt} is therefore plausibly \textbf{under-predicted}, and its equilibrium
 reached sooner than a computed coefficient would give. For a TRIGA, where the prompt negative
 coefficient \emph{is} the safety case, this warrants resolution.
 
-pcM's value is traceable to a nuclear-data calculation; pcL's is not traceable from the
-committed files. pcL should either substitute a temperature-dependent coefficient and re-run
+Cardinal's value is traceable to a nuclear-data calculation; GeN-Foam is not traceable from the
+committed files. GeN-Foam should either substitute a temperature-dependent coefficient and re-run
 the transient, or document the provenance of $-10$\,pcm/K.
 \end{callout}
 
 \subsection{Cases 6--8 --- thermal quantities}
 These cannot be differenced as reported, for three independent reasons:
 \begin{enumerate}\itemsep2pt
-\item \textbf{pcM describes an average pin.} Its own peaking factor of 2.2544 implies a hot
+\item \textbf{Cardinal describes an average pin.} Its own peaking factor of 2.2544 implies a hot
 channel is materially hotter, so the two fuel temperatures do not describe the same object.
-\item \textbf{pcM's film coefficient is a correlation, not a solution.} Dittus--Boelter at
-$\mathrm{Re}=4755$ supplies 63\% of pcM's total temperature rise, and is applied outside its
+\item \textbf{Cardinal's film coefficient is a correlation, not a solution.} Dittus--Boelter at
+$\mathrm{Re}=4755$ supplies 63\% of Cardinal's total temperature rise, and is applied outside its
 reliable range.
-\item \textbf{pcM's coolant field is not converged} (34.6\% energy closure), so
+\item \textbf{Cardinal's coolant field is not converged} (34.6\% energy closure), so
 \SI{294.2}{\kelvin} is a lower bound rather than a result.
 \end{enumerate}
 
-\subsection{Cases 10--12 --- no pcM counterpart}
-The transient is out of pcM's defined scope: the project workflow specifies a steady-state
+\subsection{Cases 10--12 --- no Cardinal counterpart}
+The transient is out of Cardinal's defined scope: the project workflow specifies a steady-state
 production run and defines no transient phase. This is a documented scope decision rather
-than an omission, but it means pcL's transient results --- including the peak power on which
+than an omission, but it means GeN-Foam's transient results --- including the peak power on which
 the safety argument rests --- have \textbf{no independent check}.
 
 \newpage
@@ -567,9 +567,9 @@ simplification. Here both share a bare-core model with no reflector and no contr
 \toprule
 \textbf{Level} & \textbf{Status} & \textbf{Evidence}\\
 \midrule
-1. Software & MET & Both codes run to completion; pcL passes its reference cases; pcM conserves power exactly at \SI{2083.33}{\watt}\\
-2. Numerical & PARTIAL & pcM neutronics and conduction converged; pcM CFD thermal field is not; no mesh or order refinement study either side\\
-3. Physics & PARTIAL & pcM conduction within 1.1\% of analytic; ZrH feedback confirmed; but pcM CFD shows an unphysical sub-inlet temperature and pcL's feedback coefficient is an undocumented input\\
+1. Software & MET & Both codes run to completion; GeN-Foam passes its reference cases; Cardinal conserves power exactly at \SI{2083.33}{\watt}\\
+2. Numerical & PARTIAL & Cardinal neutronics and conduction converged; Cardinal CFD thermal field is not; no mesh or order refinement study either side\\
+3. Physics & PARTIAL & Cardinal conduction within 1.1\% of analytic; ZrH feedback confirmed; but Cardinal CFD shows an unphysical sub-inlet temperature and GeN-Foam's feedback coefficient is an undocumented input\\
 4. Cross-code & PARTIAL & Agreement to 280\pcm{} where methodologically comparable; larger differences decomposed and attributed to homogenisation and method\\
 5. Experimental & NOT ATTEMPTED & No experimental data exists in this project\\
 \bottomrule
@@ -582,12 +582,12 @@ simplification. Here both share a bare-core model with no reflector and no contr
 \toprule
 & \textbf{Gap} & \textbf{Action} & \textbf{Cost}\\
 \midrule
-1 & pcL feedback coefficient & Document or recompute the assumed $-10$\,pcm/K & ---\\
-2 & \keff{} method gap & Generate pcM's two-group MGXS; re-solve pcL's diffusion with it & \SI{2}{\hour} CPU\\
-3 & pcM CFD not converged & Extend to $\sim$5 flow-throughs after resolving the filter undershoot & \SI{5}{\hour} GPU\\
-4 & pcM sub-inlet temperature & Reduce scalar HPFRT strength; verify with a short run & \SI{1}{\hour} GPU\\
+1 & GeN-Foam feedback coefficient & Document or recompute the assumed $-10$\,pcm/K & ---\\
+2 & \keff{} method gap & Generate Cardinal's two-group MGXS; re-solve the GeN-Foam diffusion with it & \SI{2}{\hour} CPU\\
+3 & Cardinal CFD not converged & Extend to $\sim$5 flow-throughs after resolving the filter undershoot & \SI{5}{\hour} GPU\\
+4 & Cardinal sub-inlet temperature & Reduce scalar HPFRT strength; verify with a short run & \SI{1}{\hour} GPU\\
 5 & No mesh independence & Repeat at orders 5 and 8; compare integral quantities & \SI{8}{\hour} GPU\\
-6 & pcM library deviation & Re-run coupled production on ENDF/B-VIII.0 & \SI{1}{\hour} CPU\\
+6 & Cardinal library deviation & Re-run coupled production on ENDF/B-VIII.0 & \SI{1}{\hour} CPU\\
 7 & Reflector and rods & Agree whether they enter the benchmark & ---\\
 8 & No validation & Obtain TRIGA experimental data & ---\\
 \bottomrule
@@ -603,7 +603,7 @@ Monte Carlo pin cell differs by 280\pcm{} at $3.1\sigma$, inside the
 
 \item \textbf{The core eigenvalue difference is a method difference, not an error.} It
 decomposes into 3920\pcm{} of homogenisation and 8320\pcm{} of
-diffusion-versus-Monte-Carlo on geometrically identical bare cores. pcL's own data
+diffusion-versus-Monte-Carlo on geometrically identical bare cores. GeN-Foam's own data
 independently measures a 4114\pcm{} method difference on the pin cell. Neither
 calculation is thereby shown to be incorrect.
 
@@ -611,13 +611,13 @@ calculation is thereby shown to be incorrect.
 500\pcm{} threshold between a Monte Carlo and a diffusion eigenvalue would
 manufacture a false discrepancy.
 
-\item \textbf{The fuel temperature coefficient is the outstanding physics question.} pcM
-computes $-7.76$\,pcm/K in pcL's operating band from ZrH scattering data; pcL uses a constant
+\item \textbf{The fuel temperature coefficient is the outstanding physics question.} Cardinal
+computes $-7.76$\,pcm/K in the GeN-Foam operating band from ZrH scattering data; GeN-Foam uses a constant
 $-10.000$\,pcm/K of undocumented origin. Since this parameter governs the transient, and the
 transient has no independent check, it is the highest-priority item.
 
-\item \textbf{Two results are incomplete and are reported as such.} pcM's thermal-hydraulic
-field has not converged, and pcM did not attempt the transient. Neither is presented as a
+\item \textbf{Two results are incomplete and are reported as such.} Cardinal's thermal-hydraulic
+field has not converged, and Cardinal did not attempt the transient. Neither is presented as a
 result.
 
 \item \textbf{Neither calculation is validated.} Both cores are bare, without reflector or
@@ -629,6 +629,6 @@ consistency where the methods permit it --- not fidelity to a physical reactor.
 \footnotesize\color{ink2}
 Data and inputs for both calculations:
 \texttt{github.com/kavyawadhwa134/triga-markI-benchmark} (branch \texttt{master}).
-pcM's full history and independence tag: \texttt{github.com/kavyawadhwa134/pcm-triga-cardinal}.
-pcM results were frozen at tag \texttt{pcm-independent-v1} before any pcL file was read.
+the Cardinal full history and independence tag: \texttt{github.com/kavyawadhwa134/pcm-triga-cardinal}.
+Cardinal results were frozen at tag \texttt{pcm-independent-v1} before any GeN-Foam file was read.
 \end{document}
