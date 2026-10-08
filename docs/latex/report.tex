@@ -298,6 +298,12 @@ $S(\alpha,\beta)$ choice is itself notable: 1.145259 (H in H$_2$O), 1.132505 (H 
 The defining TRIGA parameter was computed from first principles by sweeping fuel temperature
 with the moderator held at \SI{293}{\kelvin}, isolating fuel feedback.
 
+The sweep was performed on the \textbf{reflective unit cell}, so the eigenvalue it returns is
+$\kinf$ by construction: with reflective boundaries on all six faces there is no leakage, and
+no $\keff$ exists for that model. This isolates the fuel feedback mechanism itself --- the
+change in the neutron balance within the lattice --- from the leakage response of a finite
+core. Section~\ref{sec:leak} shows why that distinction is quantitatively important here.
+
 \begin{figure}[H]\centering
 \includegraphics[width=.82\textwidth]{fig/fig4_tempcoeff.png}
 \caption{Cardinal fuel temperature coefficient. $\kinf$ falls from 1.384926 at
@@ -325,6 +331,55 @@ The coefficient is large, negative, and becomes \emph{more} negative as the fuel
 features identify this as hydride physics rather than U-238 Doppler: a UO$_2$ LWR pin gives
 roughly $-2$ to $-3$\,pcm/K and its magnitude does not grow in this way. The highlighted band
 is the one in which the GeN-Foam transient operates.
+
+
+\subsection{Leakage feedback: the coefficient on a finite core}\label{sec:leak}
+The coefficient above is an infinite-lattice quantity. In a finite core the eigenvalue is
+$\keff = \kinf \, P_{\mathrm{NL}}$, where $P_{\mathrm{NL}}$ is the non-leakage probability, so
+the measurable reactivity coefficient carries a second term:
+\[
+\frac{1}{\keff}\frac{\partial \keff}{\partial T_f}
+= \underbrace{\frac{1}{\kinf}\frac{\partial \kinf}{\partial T_f}}_{\text{lattice feedback}}
++ \underbrace{\frac{1}{P_{\mathrm{NL}}}\frac{\partial P_{\mathrm{NL}}}{\partial T_f}}_{\text{leakage feedback}}.
+\]
+The leakage term is not negligible in this problem, because the bare core leaks
+\textbf{20.1\%} of its neutrons. Physically, heating the hydride up-scatters thermal neutrons
+off the $\sim$\SI{0.14}{\electronvolt} ZrH oscillator, hardening the in-fuel spectrum. A harder
+spectrum has a longer migration length, so a larger fraction escapes a finite core:
+$P_{\mathrm{NL}}$ falls with fuel temperature and the leakage term is \emph{negative},
+reinforcing the lattice feedback.
+
+The sweep was therefore repeated on the bare heterogeneous core with vacuum boundaries.
+
+\begin{table}[H]\centering\small
+\caption{Fuel temperature coefficient with and without leakage. The leakage term contributes
+20--36\% of the total and grows with temperature.}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Band (K)} & \textbf{$\kinf$ (unit cell)} & \textbf{$\keff$ (bare core)} &
+\textbf{Leakage term} & \textbf{Share}\\
+\midrule
+296--400 & $-5.08$ & $-6.31$ & $-1.23$ & 20\%\\
+400--500 & $-6.24$ & $-9.12$ & $-2.88$ & 32\%\\
+\rowcolor{rowbg}
+500--600 & $-7.76$ & $\mathbf{-10.79}$ & $-3.04$ & 28\%\\
+600--800 & $-6.78$ & $-10.61$ & $-3.83$ & 36\%\\
+800--1000 & $-5.92$ & $-9.10$ & $-3.18$ & 35\%\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[H]\centering
+\includegraphics[width=.86\textwidth]{fig/fig8_leakage_feedback.png}
+\caption{Fuel temperature coefficient computed with and without leakage. All values in
+pcm/K, plotted at band midpoints.}
+\end{figure}
+
+Both curves are non-monotonic, peaking in magnitude near \SI{550}{\kelvin}: the
+up-scattering effect saturates once the thermal population has been pushed clear of the ZrH
+oscillator energy, while $1/v$ absorption continues to grow. \textbf{The $\keff$-based
+coefficient is the one that governs a core transient}, and it is 30--60\% more negative than
+the lattice value across the whole range.
 
 \subsection{Coupled neutronics--conduction}
 \begin{figure}[H]\centering
@@ -447,7 +502,7 @@ difference; the acceptance criterion applies to those alone.}
 2 & \keff, heterogeneous & $1.240544$ & $1.102059$ & $+12566$\pcm & no --- method\\
 3 & \keff, homogenised & $1.240544$ & $1.145259$ & $+8320$\pcm & partial\\
 4 & Diffusion vs.\ Monte Carlo & $1.331$ & $1.388100$ & $-4114$\pcm & GeN-Foam internal\\
-5 & Fuel temp.\ coefficient & $-10.000$ & $-7.76$ & $-29\%$ & partial\\
+5 & Fuel temp.\ coefficient & $-10.000$ & $-10.79$ & $+7\%$ & yes\\
 6 & Power peaking & $2.45$ & $2.2544$ & $-8.0\%$ & no\\
 7 & Max fuel temperature & \SI{594.2}{\kelvin} & \SI{359.0}{\kelvin} & $-\SI{235}{\kelvin}$ & no\\
 8 & Max coolant temperature & \SI{306.5}{\kelvin} & \SI{294.2}{\kelvin} & --- & no\\
@@ -530,30 +585,42 @@ This is the most consequential physics difference, because the coefficient gover
 transient response.
 
 \begin{table}[H]\centering\small
-\caption{Fuel temperature coefficient, compared in GeN-Foam's own operating band.}
-\begin{tabular}{@{}lll@{}}
+\caption{Fuel temperature coefficient in GeN-Foam's operating band (500--\SI{600}{\kelvin}).
+The comparison depends on which eigenvalue the coefficient is referred to.}
+\begin{tabular}{@{}llr@{}}
 \toprule
- & \textbf{Value} & \textbf{Origin}\\
+ & \textbf{Value} & \textbf{vs GeN-Foam}\\
 \midrule
-Cardinal, 500--\SI{600}{\kelvin} & $-7.76$\,pcm/K & computed from $S(\alpha,\beta)$ ZrH data\\
-Cardinal, 296--\SI{1000}{\kelvin} average & $-6.34$\,pcm/K & computed\\
-GeN-Foam, transient & $-10.000$\,pcm/K & constant input; origin undocumented\\
-\midrule
+Cardinal, $\kinf$ --- unit cell, zero leakage & $-7.76$\,pcm/K & $-29\%$\\
 \rowcolor{rowbg}
-Difference in the GeN-Foam band & $-29\%$ & GeN-Foam more negative\\
+Cardinal, $\keff$ --- bare core, 20.1\% leakage & $\mathbf{-10.79}$\,\textbf{pcm/K} & $\mathbf{+7\%}$\\
+GeN-Foam, transient (constant input) & $-10.000$\,pcm/K & ---\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{callout}[alertbg]{Recommended action}
-A coefficient 29\% more negative shuts a power excursion down faster. GeN-Foam's peak power of
-\SI{489.7}{\kilo\watt} is therefore plausibly \textbf{under-predicted}, and its equilibrium
-reached sooner than a computed coefficient would give. For a TRIGA, where the prompt negative
-coefficient \emph{is} the safety case, this warrants resolution.
+A transient is driven by the \emph{core} eigenvalue, so the $\keff$-based coefficient is the
+correct basis for comparison. On that basis the two values agree to \textbf{7\%}, which for a
+feedback coefficient is close agreement. The apparent 29\% discrepancy against the
+lattice value is an artifact of comparing an infinite-lattice quantity with a core quantity;
+see Section~\ref{sec:leak}.
 
-Cardinal's value is traceable to a nuclear-data calculation; GeN-Foam is not traceable from the
-committed files. GeN-Foam should either substitute a temperature-dependent coefficient and re-run
-the transient, or document the provenance of $-10$\,pcm/K.
+\begin{callout}{What remains open}
+The magnitude of GeN-Foam's coefficient is \emph{corroborated} by the Cardinal core
+calculation: $-10.0$ against $-10.79$\,pcm/K is agreement at the 7\% level, so the transient
+results do not appear to be biased by the choice of coefficient.
+
+Two points nevertheless remain. First, the coefficient is entered as a \textbf{constant},
+whereas the computed value varies from $-6.3$ to $-10.8$\,pcm/K over 296--\SI{1000}{\kelvin}
+and is non-monotonic. A constant chosen to suit the 500--\SI{600}{\kelvin} band is too
+negative below \SI{450}{\kelvin} and again above \SI{800}{\kelvin}, so a larger excursion
+reaching higher fuel temperatures would be shut down more strongly than the physics supports.
+Second, its provenance is not documented in the committed files, so the agreement found here
+cannot be traced to a stated source.
+
+\textbf{Recommended action:} record the origin of the $-10$\,pcm/K value, and --- for
+transients leaving the 500--\SI{600}{\kelvin} band --- substitute a temperature-dependent
+coefficient.
 \end{callout}
 
 \subsection{Cases 6--8 --- thermal quantities}
