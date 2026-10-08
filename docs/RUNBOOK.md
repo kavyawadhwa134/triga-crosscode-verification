@@ -7,7 +7,7 @@ running it on a machine that is not the one it was developed on.
 Parts 1, 2 and 7 are fixed and must not be adapted. Read Part 7 before
 changing anything.
 
-This runbook is self-contained. You do not need any prior conversation.
+This runbook is self-contained.
 
 ---
 

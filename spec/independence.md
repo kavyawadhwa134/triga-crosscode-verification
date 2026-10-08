@@ -1,6 +1,6 @@
 # pcM Independence Record
 
-the project protocol requires pcM to be an independent calculation and forbids using pcL
+The project protocol requires pcM to be an independent calculation and forbids using pcL
 results as input. This file records, honestly, what pcM has and has not been
 exposed to.
 

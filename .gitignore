@@ -59,3 +59,9 @@ cardinal/**/*_out_*.csv
 # NekRS mesh build intermediates (fluid.re2 IS tracked; these regenerate it)
 cardinal/nekrs/fluid_in.e
 cardinal/nekrs/convert.exo
+
+# Local assistant configuration (not part of the project)
+CLAUDE.md
+AGENTS.md
+.claude/
+docs/CODEX_HANDOFF.md

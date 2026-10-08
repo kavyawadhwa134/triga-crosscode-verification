@@ -46,7 +46,7 @@ Checksum of the library to be recorded before the production run.
 
 ## NekRS backend determination
 
-the project protocol requires that GPU acceleration must be demonstrated, never assumed.
+The project protocol requires that GPU acceleration must be demonstrated, never assumed.
 Inspected `build/nekrs/CMakeCache.txt`:
 
 ```

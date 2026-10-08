@@ -61,7 +61,7 @@ Fractions sum to 1.00000.
 
 ### ⚠ STOP-condition flag: the core dimensions are ambiguous
 
-the project protocol lists "geometry is ambiguous" as a STOP condition. `0.495 × 0.60 m`
+The project protocol lists "geometry is ambiguous" as a STOP condition. `0.495 × 0.60 m`
 admits at least three readings:
 
 | Reading | Interpretation | Consequence |
