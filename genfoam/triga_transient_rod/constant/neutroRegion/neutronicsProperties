@@ -1,0 +1,20 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+|    TRIGA Tier-1 transient — fixed-source/point-kinetics mode
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      neutronicsProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// Simulation Type
+eigenvalueNeutronics    false;
+
+// Simulation Options
+fastNeutrons            true;
+
+
+// ************************************************************************* //

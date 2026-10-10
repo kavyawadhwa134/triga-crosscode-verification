@@ -1,4 +1,4 @@
-"""pcM post-processing: power distribution and normalization.
+"""Post-processing for the Cardinal TRIGA core model: power distribution and normalization.
 
 Reads a core statepoint, normalizes kappa-fission to the specified 250 kW,
 and writes radial/axial power profiles plus peaking factors.
@@ -17,8 +17,8 @@ sys.path.insert(0, str(Path(__file__).parent))
 import geometry as geo
 
 ROOT = Path(__file__).resolve().parents[2]
-RESULTS = ROOT / "results"
-POWER_W = 250.0e3  # spec/operating.md
+RESULTS = ROOT / "results" / "cardinal"
+POWER_W = 250.0e3  # docs/specification.md
 JOULE_PER_EV = 1.602176634e-19
 
 
@@ -80,7 +80,7 @@ def main():
     # or the source has not converged.
     axial_asymmetry = np.abs(axial - axial[::-1]).max() / axial.max()
 
-    RESULTS.mkdir(exist_ok=True)
+    RESULTS.mkdir(parents=True, exist_ok=True)
 
     summary = {
         "label": args.label,
@@ -114,24 +114,24 @@ def main():
             "hottest_pin_rel_unc": f"{pin_std[live][hottest] / pin_mean[live][hottest]:.5f}",
         })
 
-        with open(RESULTS / f"pcm_pin_power_{args.label}.csv", "w", newline="") as fh:
+        with open(RESULTS / f"pin_power_{args.label}.csv", "w", newline="") as fh:
             w = csv.writer(fh)
             w.writerow(["pin_index", "power_W", "normalized_to_average"])
             for i, val in enumerate(pin_power):
                 w.writerow([i, f"{val:.3f}", f"{val / pin_avg:.5f}"])
-    with open(RESULTS / f"pcm_power_summary_{args.label}.csv", "w", newline="") as fh:
+    with open(RESULTS / f"power_summary_{args.label}.csv", "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(summary))
         w.writeheader()
         w.writerow(summary)
 
-    with open(RESULTS / f"pcm_power_radial_{args.label}.csv", "w", newline="") as fh:
+    with open(RESULTS / f"power_radial_{args.label}.csv", "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["r_inner_cm", "r_outer_cm", "power_W", "power_fraction"])
         for i in range(nr):
             w.writerow([f"{r_grid[i]:.4f}", f"{r_grid[i + 1]:.4f}",
                         f"{radial[i]:.2f}", f"{radial[i] / radial.sum():.6f}"])
 
-    with open(RESULTS / f"pcm_power_axial_{args.label}.csv", "w", newline="") as fh:
+    with open(RESULTS / f"power_axial_{args.label}.csv", "w", newline="") as fh:
         w = csv.writer(fh)
         w.writerow(["z_lower_cm", "z_upper_cm", "power_W", "power_fraction"])
         for j in range(nz):
@@ -147,7 +147,7 @@ def main():
         print(f"pin peak/average    = {summary['pin_peak_to_average']}  (mesh-independent)")
         print(f"pin power sum       = {summary['pin_power_sum_W']} W  (should be 250000)")
     print(f"axial symmetry res. = {axial_asymmetry:.4f}  (0 = perfectly symmetric)")
-    print(f"wrote results/pcm_power_*_{args.label}.csv")
+    print(f"wrote results/cardinal/power_*_{args.label}.csv")
 
 
 if __name__ == "__main__":

@@ -1,12 +1,12 @@
-"""pcM independent material definitions.
+"""Material definitions for the Cardinal TRIGA model.
 
-Compositions from spec/materials.md (approved problem definition).
+Compositions from the shared problem specification (docs/specification.md).
 Assumption IDs (A1, A3, A5...) refer to that file.
 """
 
 import openmc
 
-REF_TEMPERATURE = 293.0  # K, spec/operating.md O1
+REF_TEMPERATURE = 293.0  # K, docs/specification.md O1
 
 
 def fuel(temperature=REF_TEMPERATURE):
@@ -26,7 +26,7 @@ def fuel(temperature=REF_TEMPERATURE):
 
 
 def clad(temperature=REF_TEMPERATURE):
-    """SS304. A5/A6: density and composition are pcM assumptions, not in spec."""
+    """SS304. A5/A6: density and composition are assumptions, not in the specification."""
     m = openmc.Material(name="SS304 clad")
     m.set_density("g/cm3", 8.00)
     m.add_element("Fe", 68.67, "wo")
@@ -62,7 +62,7 @@ def unit_cell_materials(temperature=REF_TEMPERATURE, fuel_temperature=None):
     return f, c, w, openmc.Materials([f, c, w])
 
 
-# Volume fractions derived in spec/geometry.md from the specified radii/pitch.
+# Volume fractions derived in docs/specification.md from the specified radii/pitch.
 VOL_FRAC = {"fuel": 0.57701, "clad": 0.03290, "water": 0.39009}
 
 
@@ -82,7 +82,7 @@ def homogenized_core(temperature=REF_TEMPERATURE, sab="zrh"):
         "none" - free-gas H (physically worst, included as a bound)
 
     The heterogeneous lattice core (geometry.lattice_core) has no such defect
-    and is pcM's primary core model. See PCM_STATUS.md Q4.
+    and is the primary core model. See docs/cardinal-model.md, homogenisation study.
     """
     parts = {
         "fuel": (fuel(temperature), VOL_FRAC["fuel"]),

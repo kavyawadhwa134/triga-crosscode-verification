@@ -40,7 +40,7 @@ void UDF_Setup()
   nekrsCheck(wallAreaRelativeError > wallAreaTolerance,
              platform->comm.mpiComm(),
              EXIT_FAILURE,
-             "PCM wall area mismatch: measured %.12e expected %.12e "
+             "Wall area mismatch: measured %.12e expected %.12e "
              "(relative error %.6e). Regenerate fluid.re2 and verify sidesets.\n",
              wallArea,
              expectedWallArea,
@@ -49,7 +49,7 @@ void UDF_Setup()
   o_temperatureVelocity.resize(mesh->dim * nrs->fluid->fieldOffset);
 
   if (platform->comm.mpiRank() == 0)
-    printf("PCM_DIAG_SETUP wallArea=%.12e expectedWallArea=%.12e "
+    printf("TRIGA_DIAG_SETUP wallArea=%.12e expectedWallArea=%.12e "
            "wallAreaRelativeError=%.12e wallHeatInput=%.12e\n",
            wallArea,
            expectedWallArea,
@@ -108,7 +108,7 @@ void UDF_ExecuteStep(double time, int tstep)
       mesh->Nlocal, o_temperature, platform->comm.mpiComm());
 
   if (platform->comm.mpiRank() == 0)
-    printf("PCM_DIAG step=%d time=%.12e inletFlow=%.12e outletFlow=%.12e "
+    printf("TRIGA_DIAG step=%d time=%.12e inletFlow=%.12e outletFlow=%.12e "
            "relativeMassImbalance=%.12e outletBulkTstar=%.12e "
            "TstarMin=%.12e TstarMax=%.12e advectiveHeatOut=%.12e "
            "wallHeatInput=%.12e\n",

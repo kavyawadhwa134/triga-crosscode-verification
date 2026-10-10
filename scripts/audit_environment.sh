@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
-# pcM Phase 0 environment audit. Run this FIRST on any new machine:
+# Environment audit. Run this FIRST on any new machine:
 #
 #   ./scripts/audit_environment.sh
 #
 # Reports what was found and what is missing. Anything marked MISSING must be
 # resolved before that part of the workflow can run. Record the output in
-# spec/hardware.md for the new machine.
+# the environment record in docs/reproducing.md for the new machine.
 
 source "$(dirname "${BASH_SOURCE[0]}")/env.sh"
 
@@ -15,12 +15,12 @@ warn() { printf '  \033[33mWARN\033[0m    %s\n' "$1"; }
 FAILED=0
 
 echo "=============================================="
-echo " pcM environment audit"
+echo " TRIGA Cardinal environment audit"
 echo "=============================================="
 
 echo
 echo "--- Hardware / OS ---"
-if [ "${PCM_OS}" = linux ]; then
+if [ "${TRIGA_OS}" = linux ]; then
   echo "  distro:  $(. /etc/os-release 2>/dev/null && echo "$PRETTY_NAME")"
   echo "  kernel:  $(uname -r)"
   echo "  cpu:     $(awk -F: '/model name/{print $2; exit}' /proc/cpuinfo | sed 's/^ *//')"
@@ -28,8 +28,8 @@ else
   echo "  macOS:   $(sw_vers -productVersion 2>/dev/null)"
   echo "  cpu:     $(sysctl -n machdep.cpu.brand_string 2>/dev/null)"
 fi
-echo "  cores:   ${PCM_CORES} physical"
-echo "  memory:  ${PCM_MEM_GB} GiB"
+echo "  cores:   ${TRIGA_CORES} physical"
+echo "  memory:  ${TRIGA_MEM_GB} GiB"
 
 if command -v nvidia-smi >/dev/null 2>&1; then
   nvidia-smi --query-gpu=name,memory.total --format=csv,noheader 2>/dev/null \
@@ -37,7 +37,7 @@ if command -v nvidia-smi >/dev/null 2>&1; then
 else
   echo "  gpu:     no nvidia-smi (NekRS stays CPU-only)"
 fi
-echo "  NekRS backend selected: ${PCM_NEKRS_BACKEND}"
+echo "  NekRS backend selected: ${TRIGA_NEKRS_BACKEND}"
 
 echo
 echo "--- Cardinal ---"
@@ -49,7 +49,7 @@ if [ -n "${CARDINAL_DIR}" ] && [ -d "${CARDINAL_DIR}" ]; then
     miss "cardinal-opt not on PATH (expected ${CARDINAL_DIR}/cardinal-opt)"
   fi
 else
-  miss "Cardinal not found. Set PCM_CARDINAL_DIR=/path/to/cardinal"
+  miss "Cardinal not found. Set TRIGA_CARDINAL_DIR=/path/to/cardinal"
 fi
 
 echo
@@ -59,22 +59,22 @@ if command -v openmc >/dev/null 2>&1; then
 else
   warn "openmc binary not on PATH (Cardinal runs OpenMC internally, so this is optional)"
 fi
-if "${PCM_PYTHON}" -c 'import openmc' >/dev/null 2>&1; then
-  ok "openmc python = ${PCM_PYTHON} ($("${PCM_PYTHON}" -c 'import openmc;print(openmc.__version__)'))"
+if "${TRIGA_PYTHON}" -c 'import openmc' >/dev/null 2>&1; then
+  ok "openmc python = ${TRIGA_PYTHON} ($("${TRIGA_PYTHON}" -c 'import openmc;print(openmc.__version__)'))"
 else
-  miss "openmc Python API not importable by ${PCM_PYTHON} (needed to build inputs)"
+  miss "openmc Python API not importable by ${TRIGA_PYTHON} (needed to build inputs)"
 fi
 
 echo
 echo "--- Nuclear data ---"
 if [ -n "${OPENMC_CROSS_SECTIONS:-}" ] && [ -f "${OPENMC_CROSS_SECTIONS}" ]; then
   ok "cross_sections.xml = ${OPENMC_CROSS_SECTIONS}"
-  if [ "${PCM_XS_LIBRARY}" = "ENDF/B-VIII.0" ]; then
-    ok "library = ${PCM_XS_LIBRARY} (matches spec)"
+  if [ "${TRIGA_XS_LIBRARY}" = "ENDF/B-VIII.0" ]; then
+    ok "library = ${TRIGA_XS_LIBRARY} (matches spec)"
   else
-    warn "library = ${PCM_XS_LIBRARY} - spec/materials.md requires ENDF/B-VIII.0"
-    echo "          Committed baselines and pcL both used VIII.0. Label every"
-    echo "          result with the library actually used. See docs/RUNBOOK.md."
+    warn "library = ${TRIGA_XS_LIBRARY} - docs/specification.md requires ENDF/B-VIII.0"
+    echo "          Committed baselines and the GeN-Foam lattice both used VIII.0. Label every"
+    echo "          result with the library actually used. See docs/reproducing.md."
   fi
   for t in c_H_in_ZrH c_Zr_in_ZrH; do
     # Official OpenMC libraries have used both layouts. ENDF/B-VII.1 places
@@ -92,7 +92,7 @@ if [ -n "${OPENMC_CROSS_SECTIONS:-}" ] && [ -f "${OPENMC_CROSS_SECTIONS}" ]; the
     [ -n "$d" ] && ok "S(a,b) ${t} = ${d}" || miss "S(a,b) ${t} - required for TRIGA ZrH feedback"
   done
 else
-  miss "No cross_sections.xml found. Set PCM_CROSS_SECTIONS=/path/to/cross_sections.xml"
+  miss "No cross_sections.xml found. Set TRIGA_CROSS_SECTIONS=/path/to/cross_sections.xml"
 fi
 
 echo
@@ -123,10 +123,10 @@ echo
 echo "--- NekRS sizing guidance (memory) ---"
 # Nek5000 allocates statically: ~854 arrays of (lx1^3 * lelt) doubles, where
 # lelt = elements per RANK. Running on 1 rank puts the whole mesh in one
-# translation unit and the JIT compile can exhaust RAM. See docs/PORTING.md.
-ELEMS="${PCM_NEK_ELEMENTS:-2880}"
-POLY="${PCM_NEK_POLY:-7}"
-"${PCM_PYTHON}" - "$ELEMS" "$POLY" "$PCM_CORES" "$PCM_MEM_GB" <<'PY'
+# translation unit and the JIT compile can exhaust RAM. See docs/reproducing.md (NekRS memory sizing).
+ELEMS="${TRIGA_NEK_ELEMENTS:-2880}"
+POLY="${TRIGA_NEK_POLY:-7}"
+"${TRIGA_PYTHON}" - "$ELEMS" "$POLY" "$TRIGA_CORES" "$TRIGA_MEM_GB" <<'PY'
 import sys
 elems, poly, cores, mem = int(sys.argv[1]), int(sys.argv[2]), int(sys.argv[3]), int(sys.argv[4])
 lx1 = poly + 1; arrays = 854

@@ -1,4 +1,4 @@
-"""pcM OpenMC driver.
+"""Standalone OpenMC driver for the Cardinal TRIGA model.
 
 Usage:
     python run.py unitcell smoke
@@ -29,7 +29,7 @@ import settings as st
 import tallies as tal
 
 ROOT = Path(__file__).resolve().parents[2]
-RESULTS = ROOT / "results"
+RESULTS = ROOT / "results" / "cardinal"
 CONFIGS = {"smoke": st.SMOKE, "baseline": st.BASELINE, "production": st.PRODUCTION}
 
 
@@ -131,8 +131,8 @@ def main():
         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
     }
 
-    RESULTS.mkdir(exist_ok=True)
-    csv_path = RESULTS / f"pcm_openmc_{args.model}.csv"
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    csv_path = RESULTS / f"openmc_{args.model}.csv"
     write_header = not csv_path.exists()
     with open(csv_path, "a", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(record))
@@ -141,11 +141,12 @@ def main():
         w.writerow(record)
 
     if entropy:
-        with open(RESULTS / f"entropy_{args.model}_{args.config}_seed{args.seed}.json", "w") as fh:
+        (RESULTS / "entropy").mkdir(exist_ok=True)
+        with open(RESULTS / "entropy" / f"{args.model}_{args.config}_seed{args.seed}.json", "w") as fh:
             json.dump({"shannon_entropy": entropy}, fh)
 
     print(f"\n{'=' * 52}")
-    print(f"pcM {args.model} [{args.config}]")
+    print(f"TRIGA {args.model} [{args.config}]")
     print(f"  {label} = {k_val:.6f} +/- {k_std:.6f}  ({k_std * 1e5:.1f} pcm)")
     print(f"  histories: {record['histories']:,}   wall: {wall:.1f} s")
     print(f"  -> {csv_path.relative_to(ROOT)}")

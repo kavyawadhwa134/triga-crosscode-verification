@@ -1,11 +1,11 @@
-# pcM solid mesh: TRIGA fuel pin + SS304 clad, no gap.
+# Solid mesh: TRIGA fuel pin + SS304 clad, no gap.
 #
-# Dimensions from spec/geometry.md. The specification gives only two radii, so
+# Dimensions from docs/specification.md. The specification gives only two radii, so
 # the clad inner radius equals the fuel outer radius (assumption G1) and the
 # two meshes are stitched into direct thermal contact rather than separated by
 # a gap as in Cardinal's LWR tutorial.
 #
-# Build with:  cardinal-opt -i mesh.i --mesh-only pcm_solid_in.e
+# Build with:  cardinal-opt -i mesh.i --mesh-only triga_solid_in.e
 #
 # Blocks: 'fuel' (HEX8) and 'fuel_center' (PRISM6, the annular mesh axis) are
 # both fuel - Exodus forbids mixed element types in one block, so they stay

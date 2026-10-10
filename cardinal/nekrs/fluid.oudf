@@ -1,9 +1,9 @@
 // Device-side boundary conditions for the CARDINAL-pinned NekRS interface.
 //
-// PCM_STANDALONE_FLUX is the uniform non-dimensional clad heat flux used for
+// TRIGA_STANDALONE_FLUX is the uniform non-dimensional clad heat flux used for
 // the standalone coolant case. Coupled runs replace it with MOOSE/OpenMC data.
 
-#define PCM_STANDALONE_FLUX 0.009946
+#define TRIGA_STANDALONE_FLUX 0.009946
 
 void udfDirichlet(bcData *bc)
 {
@@ -21,10 +21,10 @@ void udfDirichlet(bcData *bc)
 void udfNeumann(bcData *bc)
 {
   if (isField("scalar temperature")) {
-#ifdef PCM_COUPLED
+#ifdef TRIGA_COUPLED
     bc->fluxScalar = bc->usrwrk[bc->idxVol];
 #else
-    bc->fluxScalar = PCM_STANDALONE_FLUX;
+    bc->fluxScalar = TRIGA_STANDALONE_FLUX;
 #endif
   }
 }

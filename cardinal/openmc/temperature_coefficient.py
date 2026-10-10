@@ -1,4 +1,4 @@
-"""pcM fuel temperature coefficient of reactivity.
+"""Fuel temperature coefficient of reactivity (Cardinal / OpenMC model).
 
 The defining TRIGA characteristic is a large, prompt, negative fuel temperature
 coefficient. It arises from hydrogen bound in ZrH: the ~0.14 eV Einstein
@@ -8,7 +8,7 @@ leak before returning. This is a much stronger effect than U-238 Doppler alone,
 and it is what makes a TRIGA inherently safe under a large reactivity
 insertion.
 
-Verifying it is how pcM demonstrates it has modelled a TRIGA rather than a
+Verifying it demonstrates that the model behaves as a TRIGA rather than a
 generic pincell: only the fuel temperature is varied, so the measured
 coefficient isolates fuel feedback from moderator density feedback.
 
@@ -31,7 +31,7 @@ import materials as mat
 import settings as st
 
 ROOT = Path(__file__).resolve().parents[2]
-RESULTS = ROOT / "results"
+RESULTS = ROOT / "results" / "cardinal"
 
 
 def run_one(fuel_T, moderator_T, config, seed, threads):
@@ -121,8 +121,8 @@ def main():
         a = "     ref" if T == T_ref else f"{alpha:13.3f}"
         print(f"{T:10.0f} {k:10.6f} {sd:9.6f} {rho:10.1f} {d_rho:11.1f} {a}")
 
-    RESULTS.mkdir(exist_ok=True)
-    out = RESULTS / "pcm_fuel_temperature_coefficient.csv"
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    out = RESULTS / "fuel_temperature_coefficient.csv"
     with open(out, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(rows[0]))
         w.writeheader()

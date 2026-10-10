@@ -1,0 +1,102 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+|       ______          _   __           ______                               |
+|      / ____/  ___    / | / /          / ____/  ____   ____ _   ____ ___     |
+|     / / __   / _ \  /  |/ /  ______  / /_     / __ \ / __ `/  / __ `__ \    |
+|    / /_/ /  /  __/ / /|  /  /_____/ / __/    / /_/ // /_/ /  / / / / / /    |
+|    \____/   \___/ /_/ |_/          /_/       \____/ \__,_/  /_/ /_/ /_/     |
+|    Copyright (C) 2015 - 2022 EPFL                                           |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      phaseProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+// ------------------------------------------------------------------------- //
+// --- STRUCTURES PROPERTIES ----------------------------------------------- //
+// ------------------------------------------------------------------------- //
+
+structureProperties
+{
+    "zone0"
+    {
+        // TRIGA Tier-1: U-ZrH pins on 4.235 cm square pitch (see spec).
+        // fluid fraction 1-pi*0.01866^2/0.04235^2 = 0.39;
+        // Dh = 4*A/P = 0.024 m; heat area = 2*pi*r_clad/p^2 = 65.4 m2/m3.
+        volumeFraction      0.39;
+        Dh                  0.024;
+
+        powerModel
+        {
+            type                nuclearFuelPin;
+            volumetricArea      65.4;
+            powerDensity        0;
+            fuelInnerRadius     1e-06;
+            fuelOuterRadius     0.01815;
+            cladInnerRadius     0.01815;
+            cladOuterRadius     0.01866;
+            fuelMeshSize        16;
+            cladMeshSize        4;
+            fuelRho             6000;
+            fuelCp              365;
+            cladRho             7900;
+            cladCp              500;
+            gapH                50000;
+            fuelK               18;
+            cladK               16;
+            fuelT               293;
+            cladT               293;
+        }
+
+        passiveProperties
+        {
+            // placeholder for grid/reflector steel (Tier-2 splits zones)
+            volumetricArea      2;
+            rho                 7700;
+            Cp                  500;
+            T                   293;
+        }
+    }
+}
+
+// ------------------------------------------------------------------------- //
+// --- REGIME MAP MODELS --------------------------------------------------- //
+// ------------------------------------------------------------------------- //
+
+regimeMapModels
+{
+}
+
+// ------------------------------------------------------------------------- //
+// --- REGIME PHYSICS FOR EACH REGIME -------------------------------------- //
+// ------------------------------------------------------------------------- //
+
+physicsModels
+{
+    dragModels
+    {
+        "zone0"
+        {
+            type    ReynoldsPower;
+            coeff   0.687;
+            exp     -0.25;
+        }
+    }
+
+    heatTransferModels
+    {
+        "zone0"
+        {
+            type    NusseltReynoldsPrandtlPower;
+            const   4.82;
+            coeff   0.0185;
+            expRe   0.827;
+            expPr   0.827;
+        }
+    }
+}
+
+// ************************************************************************* //

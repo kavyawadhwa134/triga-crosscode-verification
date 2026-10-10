@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# pcM coupled Cardinal run (OpenMC <-> MOOSE heat conduction).
+# Coupled Cardinal run (OpenMC <-> MOOSE heat conduction).
 #
 #   ./scripts/run_coupled.sh smoke           # 5 Picard steps, 5k particles
 #   ./scripts/run_coupled.sh production      # 10 Picard steps, 20k particles
@@ -17,19 +17,19 @@ case "${MODE}" in
   *) echo "usage: $0 [smoke|production] [ranks]" >&2; exit 1 ;;
 esac
 
-OUT="${PCM_ROOT}/run/coupled_${MODE}"
+OUT="${TRIGA_ROOT}/run/coupled_${MODE}"
 mkdir -p "${OUT}"
 
-cd "${PCM_ROOT}/cardinal/coupling"
+cd "${TRIGA_ROOT}/cardinal/coupling"
 
 # The solid mesh must exist before either app can read it.
-if [ ! -f "${PCM_ROOT}/cardinal/moose/pcm_solid_in.e" ]; then
+if [ ! -f "${TRIGA_ROOT}/cardinal/moose/triga_solid_in.e" ]; then
   echo "building solid mesh..."
-  (cd "${PCM_ROOT}/cardinal/moose" && cardinal-opt -i mesh.i --mesh-only pcm_solid_in.e)
+  (cd "${TRIGA_ROOT}/cardinal/moose" && cardinal-opt -i mesh.i --mesh-only triga_solid_in.e)
 fi
 
 echo "generating 3-D OpenMC model (${PARTICLES} particles, ${BATCHES} batches)..."
-"${PCM_PYTHON}" make_coupled_model.py -n 20 \
+"${TRIGA_PYTHON}" make_coupled_model.py -n 20 \
   --particles "${PARTICLES}" --batches "${BATCHES}" --inactive "${INACTIVE}"
 
 echo "running coupled ${MODE}: ${STEPS} Picard steps, ${RANKS} rank(s)"

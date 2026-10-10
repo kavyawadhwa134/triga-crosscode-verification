@@ -65,3 +65,20 @@ CLAUDE.md
 AGENTS.md
 .claude/
 docs/CODEX_HANDOFF.md
+
+# Internal working notes kept locally only
+PCM_STATUS.md
+PCM_WORKFLOW.md
+spec/
+
+# GeN-Foam / OpenFOAM run outputs
+genfoam/*/[1-9]*/
+genfoam/*/processor*/
+genfoam/*/log.*
+genfoam/*/constant/polyMesh/
+genfoam/*/constant/*/polyMesh/
+genfoam/lattice/*.xml
+genfoam/lattice/statepoint.*.h5
+genfoam/lattice/summary.h5
+genfoam/lattice/mgxs/
+!genfoam/lattice/mgxs_2g_data.h5

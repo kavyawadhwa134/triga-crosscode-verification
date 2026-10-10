@@ -1,4 +1,4 @@
-# pcM OpenMC sub-app for Cardinal coupling.
+# OpenMC sub-app for Cardinal coupling.
 #
 # Receives temperature from the MOOSE solid app, returns the fission heat
 # source. Syntax follows Cardinal's installed lwr_solid tutorial.
@@ -6,7 +6,7 @@
 [Mesh]
   [file]
     type = FileMeshGenerator
-    file = ../moose/pcm_solid_in.e
+    file = ../moose/triga_solid_in.e
   []
 []
 
@@ -28,8 +28,8 @@
   type = OpenMCCellAverageProblem
   verbose = true
 
-  # Average pin power from pcM's own core calculation:
-  # 250 kW / 120 fuelled pins = 2083.33 W. See results/PCM_RESULTS.md.
+  # Average pin power from the Cardinal core calculation:
+  # 250 kW / 120 fuelled pins = 2083.33 W. See docs/cardinal-model.md.
   power = 2083.33
 
   temperature_blocks = 'fuel fuel_center clad'

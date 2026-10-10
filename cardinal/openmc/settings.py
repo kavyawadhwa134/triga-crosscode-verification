@@ -1,12 +1,12 @@
-"""pcM independent OpenMC settings.
+"""OpenMC settings for the Cardinal TRIGA model.
 
-Batch/particle counts are pcM's own numerical choices and are subject to the
-Phase 11 convergence study. They are never adjusted to move k.
+Batch/particle counts are numerical choices verified by the particle/batch
+convergence and seed-repeatability studies. They are never adjusted to move k.
 """
 
 import openmc
 
-# Two-group structure from spec/operating.md
+# Two-group structure from docs/specification.md
 THERMAL_CUTOFF = 0.625  # eV
 GROUP_EDGES = [0.0, THERMAL_CUTOFF, 20.0e6]  # eV
 
@@ -31,7 +31,7 @@ def eigenvalue_settings(particles, inactive, batches, bounds, seed=1,
         space=openmc.stats.Box(bounds[:3], bounds[3:], only_fissionable=True)
     )
 
-    # Shannon entropy for source-convergence diagnosis (Phase 5)
+    # Shannon entropy for source-convergence diagnosis 
     entropy = openmc.RegularMesh()
     entropy.lower_left = bounds[:3]
     entropy.upper_right = bounds[3:]

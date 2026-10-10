@@ -1,0 +1,23 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite it as below."
+title: "TRIGA Mark I Monte Carlo vs Deterministic Cross-Code Study (Cardinal and GeN-Foam)"
+authors:
+  - family-names: Wadhwa
+    given-names: Kavya
+    affiliation: Pandit Deendayal Energy University
+type: software
+license: MIT
+repository-code: "https://github.com/kavyawadhwa134/triga-crosscode-verification"
+date-released: 2026-10-11
+keywords:
+  - TRIGA
+  - research reactor
+  - code-to-code verification
+  - Cardinal
+  - OpenMC
+  - MOOSE
+  - NekRS
+  - GeN-Foam
+  - Monte Carlo
+  - diffusion
+  - multiphysics

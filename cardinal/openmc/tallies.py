@@ -1,6 +1,6 @@
-"""pcM independent tally definitions.
+"""Tally definitions for the Cardinal TRIGA model.
 
-Two-group structure from spec/operating.md (0.625 eV cutoff).
+Two-group structure from the specification (0.625 eV cutoff).
 """
 
 import openmc

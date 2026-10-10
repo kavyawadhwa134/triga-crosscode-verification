@@ -1,0 +1,7 @@
+#!/bin/sh
+# Remove generated mesh/results, keep inputs (0/, constant props, system).
+cd ${0%/*} || exit 1
+
+rm -rf constant/fluidRegion/polyMesh constant/neutroRegion/polyMesh
+rm -rf [1-9]* 0/fluidRegion.baffleLess 0/neutroRegion.baffleLess
+rm -rf processor* log.* *.OpenFOAM VTK paraview_*.png test.out

@@ -1,4 +1,4 @@
-"""pcM 3-D pincell OpenMC model for Cardinal coupling.
+"""3-D pincell OpenMC model for Cardinal coupling.
 
 Same specified materials and radii as the 2-D k-infinity model, extended
 axially so temperature and power can vary along the pin.
@@ -21,8 +21,8 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "openmc"))
 import materials as mat
 from geometry import CLAD_OR, FUEL_OR, PITCH
 
-HEIGHT = 60.0  # cm, core height from spec/geometry.md
-T_INLET = 293.0  # K, spec/operating.md
+HEIGHT = 60.0  # cm, core height from docs/specification.md
+T_INLET = 293.0  # K, docs/specification.md
 
 
 def main():

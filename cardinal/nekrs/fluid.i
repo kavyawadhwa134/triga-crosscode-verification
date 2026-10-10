@@ -1,4 +1,4 @@
-# pcM NekRS fluid mesh: TRIGA coolant subchannel.
+# NekRS fluid mesh: TRIGA coolant subchannel.
 #
 # Square-pitch cell (4.235 cm) with the clad outer surface (r = 1.866 cm)
 # removed. Dimensions in METRES to match Cardinal's NekRS tutorial convention.

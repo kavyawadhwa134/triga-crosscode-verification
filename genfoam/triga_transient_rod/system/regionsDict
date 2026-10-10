@@ -1,0 +1,43 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+|    TRIGA Tier-1 transient — point kinetics + onePhase (from template)
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      regionsDict;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+regionSolvers
+{
+    Level_0
+    {
+        fluidRegion     onePhase;
+        neutroRegion    pointKinetics;
+    }
+}
+
+mappings
+{
+    fluidRegion
+    {
+        neutroRegion
+        {
+            sourceFields    ( powerDensity secondaryPowerDensity );
+            targetFields    ( powerDensityStructure powerDensityLiquid );
+        }
+    }
+    neutroRegion
+    {
+        fluidRegion
+        {
+            sourceFields    ( T thermo:rho T.fuelAvForNeutronics T.cladAvForNeutronics T.passiveStructure );
+            targetFields    ( TCool rhoCool TFuel TClad TStructMech );
+        }
+    }
+}
+
+
+// ************************************************************************* //

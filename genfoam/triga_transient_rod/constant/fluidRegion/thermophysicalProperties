@@ -1,0 +1,66 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+|       ______          _   __           ______                               |
+|      / ____/  ___    / | / /          / ____/  ____   ____ _   ____ ___     |
+|     / / __   / _ \  /  |/ /  ______  / /_     / __ \ / __ `/  / __ `__ \    |
+|    / /_/ /  /  __/ / /|  /  /_____/ / __/    / /_/ // /_/ /  / / / / / /    |
+|    \____/   \___/ /_/ |_/          /_/       \____/ \__,_/  /_/ /_/ /_/     |
+|    Copyright (C) 2015 - 2022 EPFL                                           |
+\*---------------------------------------------------------------------------*/
+FoamFile
+{
+    version     2.0;
+    format      ascii;
+    class       dictionary;
+    object      thermophysicalProperties;
+}
+// * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * //
+
+thermoType
+{
+    type            heRhoThermo;
+    mixture         pureMixture;
+    transport       polynomial;
+    thermo          hPolynomial;
+    equationOfState icoPolynomial; //perfectGas;
+    specie          specie;
+    energy          sensibleEnthalpy;
+}
+
+pRef            100000;
+
+// TRIGA Tier-1: liquid water at ~300 K (constant-property placeholders;
+// Tier-2 replaces with temperature polynomials).
+mixture
+{
+    specie
+    {
+        molWeight       18.015;
+    }
+    equationOfState
+    {
+        rhoCoeffs<8>    (997 0 0 0 0 0 0 0);
+    }
+    thermodynamics
+    {
+        CpCoeffs<8>
+        (
+            4182
+            0
+            0
+            0
+            0
+            0
+            0
+            0
+        );
+        Hf      0;
+        Sf      0;
+    }
+    transport
+    {
+        muCoeffs<8>     (8.9e-4 0 0 0 0 0 0 0);
+        kappaCoeffs<8>  (0.615 0 0 0 0 0 0 0);
+    }
+}
+
+// ************************************************************************* //

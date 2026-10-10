@@ -1,9 +1,9 @@
-# pcM MOOSE solid heat conduction, master app driving OpenMC through Cardinal.
+# MOOSE solid heat conduction, master app driving OpenMC through Cardinal.
 #
 # Units: cm, W, K (mesh is in cm, so conductivities are W/cm-K).
 #
-# Thermal properties are NOT in the approved specification and are pcM
-# assumptions, documented in spec/thermal.md:
+# Thermal properties are NOT in the problem specification; they are
+# modelling assumptions documented in docs/cardinal-model.md (T1-T5):
 #   T1  k_fuel = 0.18 W/cm-K   (U-ZrH1.65, ~18 W/m-K)
 #   T2  k_clad = 0.16 W/cm-K   (SS304, ~16 W/m-K)
 #   T3  h      = 0.109778 W/cm^2-K, Dittus-Boelter at Re=4755, Pr=7.01
@@ -18,7 +18,7 @@ height = 60.0
 [Mesh]
   [file]
     type = FileMeshGenerator
-    file = ../moose/pcm_solid_in.e
+    file = ../moose/triga_solid_in.e
   []
 []
 

@@ -1,0 +1,5 @@
+step,from,k_from,to,k_to,delta_rho_pcm
+homogenisation,Cardinal heterogeneous MC,1.102059,Cardinal homogenised MC,1.145259,+3423
+solution_method,Cardinal homogenised MC,1.145259,"2-group diffusion, cylinder, zero-flux boundary",1.140929,-331
+core_geometry,"diffusion, 3-D cylinder",1.140929,"diffusion, 2-D slab",1.240304,+7022
+discretisation,analytic slab,1.240304,GeN-Foam numerical slab,1.240544,+16

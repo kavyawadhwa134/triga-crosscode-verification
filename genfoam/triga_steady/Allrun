@@ -1,0 +1,14 @@
+#!/bin/sh
+# TRIGA Tier-1 steady coupled run (single homogenized zone, diffusion).
+cd ${0%/*} || exit 1
+
+. $WM_PROJECT_DIR/bin/tools/RunFunctions
+
+blockMesh
+rm -rf constant/fluidRegion/polyMesh constant/neutroRegion/polyMesh
+cp -r constant/polyMesh constant/fluidRegion/polyMesh
+cp -r constant/polyMesh constant/neutroRegion/polyMesh
+rm -rf constant/polyMesh
+
+GeN-Foam -initializeMappedFields
+GeN-Foam 2>&1 | tee log.GeN-Foam

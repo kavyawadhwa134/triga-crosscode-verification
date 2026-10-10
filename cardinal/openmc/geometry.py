@@ -1,6 +1,6 @@
-"""pcM independent geometry definitions.
+"""Geometry definitions for the Cardinal TRIGA model.
 
-Dimensions from spec/geometry.md (approved problem definition).
+Dimensions from the shared problem specification (docs/specification.md).
 """
 
 import openmc
@@ -12,7 +12,7 @@ FUEL_OR = 1.815  # cm
 CLAD_OR = 1.866  # cm
 PITCH = 4.235  # cm
 
-# Model 2 - core. PROVISIONAL interpretation, see spec/geometry.md Q1:
+# Model 2 - core. PROVISIONAL interpretation, see docs/specification.md (core-dimension reading):
 # 0.495 m read as DIAMETER, 0.60 m as height.
 CORE_DIAMETER = 49.5  # cm
 CORE_HEIGHT = 60.0  # cm
@@ -58,7 +58,7 @@ def unit_cell(temperature=mat.REF_TEMPERATURE):
 def lattice_core(temperature=mat.REF_TEMPERATURE):
     """Bare heterogeneous core: square lattice of the specified pin, vacuum BCs.
 
-    pcM's PRIMARY core model. Unlike the smeared zone, every material keeps its
+    The PRIMARY core model. Unlike the smeared zone, every material keeps its
     own thermal-scattering kernel, so hydride-bound and water-bound hydrogen
     are both treated correctly. Uses only specified data: the pin radii, the
     4.235 cm pitch, and the core envelope.
