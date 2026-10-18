@@ -4,7 +4,7 @@
 |---|---|
 | Cardinal | OpenMC continuous-energy Monte Carlo + MOOSE conduction + NekRS (diagnostic) |
 | GeN-Foam | 2-group diffusion + porous-medium thermal-hydraulics + sub-scale fuel pin |
-| Protocol | Cardinal results frozen at git tag `pcm-independent-v1` before any GeN-Foam result was read |
+| Protocol | Cardinal results frozen at git tag `pcm-independent-v1` before any GeN-Foam input, mesh or output file was read. GeN-Foam's headline values were stated in the task brief; no Cardinal parameter was adjusted toward them |
 | Criterion | 500 pcm on k flags a material difference |
 
 Machine-readable table: [`crosscode_comparison.csv`](crosscode_comparison.csv).

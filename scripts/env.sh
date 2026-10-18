@@ -54,16 +54,25 @@ fi
 # bin (macOS: arm64-apple-darwin*-gfortran, Linux: x86_64-conda-linux-gnu-*),
 # so that directory must be on PATH or the NekRS build fails with
 # "command not found" partway through.
+#
+# Each strategy must fall through when it yields nothing. `conda` can be a shell
+# function whose backend fails (non-initialised or sandboxed shells), in which
+# case `command -v conda` succeeds but `conda info --base` prints nothing; the
+# directory search below must still run.
+if [ -z "${CONDA_ROOT:-}" ] && [ -n "${CONDA_EXE:-}" ]; then
+  CONDA_ROOT="$(cd "$(dirname "$(dirname "${CONDA_EXE}")")" 2>/dev/null && pwd)"
+fi
+if [ -z "${CONDA_ROOT:-}" ] && command -v conda >/dev/null 2>&1; then
+  CONDA_ROOT="$(conda info --base 2>/dev/null || true)"
+fi
+if [ -n "${CONDA_ROOT:-}" ] && [ ! -d "${CONDA_ROOT}" ]; then
+  echo "env.sh: CONDA_ROOT='${CONDA_ROOT}' is not a directory; falling back to auto-detection" >&2
+  CONDA_ROOT=""
+fi
 if [ -z "${CONDA_ROOT:-}" ]; then
-  if [ -n "${CONDA_EXE:-}" ]; then
-    CONDA_ROOT="$(cd "$(dirname "$(dirname "${CONDA_EXE}")")" && pwd)"
-  elif command -v conda >/dev/null 2>&1; then
-    CONDA_ROOT="$(conda info --base 2>/dev/null)"
-  else
-    CONDA_ROOT="$(_triga_first_dir \
-      "$HOME/miniforge3" "$HOME/miniconda3" "$HOME/anaconda3" \
-      "$HOME/mambaforge" "$HOME/Anaconda/anaconda3" "/opt/conda")"
-  fi
+  CONDA_ROOT="$(_triga_first_dir \
+    "$HOME/miniforge3" "$HOME/miniconda3" "$HOME/anaconda3" \
+    "$HOME/mambaforge" "$HOME/Anaconda/anaconda3" "/opt/conda")"
 fi
 export CONDA_ROOT
 

@@ -10,10 +10,14 @@ solved two ways and compared quantity by quantity:
   thermal-hydraulics in OpenFOAM, with group constants condensed from an
   OpenMC lattice calculation.
 
-Both models were built from one shared problem specification. The comparison
-was run blind: the Cardinal results were frozen under the git tag
-[`pcm-independent-v1`](https://github.com/kavyawadhwa134/triga-crosscode-verification/tree/pcm-independent-v1) before any GeN-Foam
-result was read.
+Both models were built from one shared problem specification. No GeN-Foam
+input, mesh, group constant or output file was read before the Cardinal
+results were frozen under the git tag
+[`pcm-independent-v1`](https://github.com/kavyawadhwa134/triga-crosscode-verification/tree/pcm-independent-v1).
+GeN-Foam's headline values (k∞, k_eff, peaking factor, peak fuel temperature,
+transient power) were stated in the task brief; no Cardinal parameter was
+adjusted toward them, and the Cardinal core eigenvalue differs from GeN-Foam's
+by about 10 000 pcm.
 
 📄 **Full report:** [`docs/TRIGA_MarkI_CrossCode_Report.pdf`](docs/TRIGA_MarkI_CrossCode_Report.pdf)
 
@@ -36,10 +40,10 @@ physics requirement of the study.
 | | Result |
 |---|---|
 | **Lattice agreement** | k∞ = 1.384207 ± 21 pcm (Cardinal) vs 1.388100 ± 123 pcm (GeN-Foam lattice): **−280 pcm**, inside the 500 pcm criterion |
-| **Core eigenvalue explained** | The +10 129 pcm k_eff difference decomposes exactly: **+7022 pcm** from core geometry (2-D slab vs 3-D cylinder), +3423 pcm from homogenisation, −331 pcm from diffusion vs Monte Carlo, +16 pcm discretisation |
-| **Methods agree once geometry matches** | Two-group diffusion and Monte Carlo in the same homogenised cylinder: **−331 pcm** |
+| **Core eigenvalue explained** | The +10 129 pcm k_eff difference decomposes exactly (terms rounded individually): **+7022 pcm** from core geometry (2-D slab vs 3-D cylinder), +3423 pcm from homogenisation, −331 pcm from diffusion vs Monte Carlo, +16 pcm discretisation |
+| **Method difference with geometry matched** | Two-group diffusion vs Monte Carlo in the same homogenised cylinder: **−331 pcm** with a zero-flux vacuum boundary, **+1468 pcm** with an extrapolated (Marshak) boundary. Both lie within the 1275 pcm spread of the Monte Carlo result across hydrogen scattering kernels |
 | **TRIGA feedback from first principles** | Fuel temperature coefficient −10.79 ± 0.82 pcm/K (bare core, 500–600 K), from ZrH thermal-scattering data; agrees with the −10.0 pcm/K published value used by GeN-Foam to within 1σ |
-| **Leakage feedback quantified** | Leakage contributes 20–36% of the core coefficient, which is 25–55% larger in magnitude than the lattice-only value |
+| **Leakage feedback quantified** | Leakage contributes 20–36% of the core coefficient, which is 24–57% larger in magnitude than the lattice-only value |
 | **Coupled multiphysics verified** | OpenMC–MOOSE peak fuel temperature 359.0 K vs 362.8 K analytic (1.1%); power conserved exactly; cross-platform agreement 7 × 10⁻⁴ K |
 | **Solver verified** | GeN-Foam reproduces the analytic two-group solution of its own geometry to 16 pcm |
 
@@ -63,7 +67,9 @@ physics requirement of the study.
    error.** The specification gives the core as "0.495 × 0.60 m" without a
    shape. Cardinal read it as a 3-D cylinder and GeN-Foam as a 2-D slab; that
    reading alone is worth about 7000 pcm. With the geometry matched, diffusion
-   and Monte Carlo agree to within a few hundred pcm.
+   and Monte Carlo differ by −331 to +1468 pcm depending on the vacuum
+   boundary treatment, comparable to the 1275 pcm sensitivity of the
+   homogenised model to the hydrogen scattering kernel.
 3. **The safety-relevant coefficient is corroborated, with a caveat.** The
    computed coefficient varies from −6.3 to −10.8 pcm/K over 296–1000 K, so
    the constant used in the GeN-Foam transient is only adequate near 500–600 K.
